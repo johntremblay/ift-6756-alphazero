@@ -3,8 +3,8 @@
 # TODO: Changes the state representation to be 5x5x4 (board) and 5x5x1 (players)
 
 # TODO AS OF MARCH 20:
-- Pit to fix (FM)
-- Player to fix (ordre) (FM)
+- Pit to fix (FM) - done
+- Player to fix (ordre) (FM) - done
 - Logic to check (9 in arena sometimes) (FM)
 - SOmeone wins even though it was supposed to be the other (SantoriniGame) (FM)
 - Fix arena (qui qui recoit le nouveau Net et qui qui gagne) (JT)
