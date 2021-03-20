@@ -9,23 +9,26 @@ import torch
 import torch.optim as optim
 from .SantoriniNNet import SantoriniNNet as onnet
 
-# args = dotdict({
-#     'lr': 0.001,
-#     'dropout': 0.1,
-#     'epochs': 2,
-#     'batch_size': 256,
-#     'cuda': torch.cuda.is_available(),
-#     'num_channels': 256,
-# })
+__COLAB = True
 
-args = dotdict({
-    'lr': 0.001,
-    'dropout': 0.1,
-    'epochs': 15,
-    'batch_size': 256,
-    'cuda': torch.cuda.is_available(),
-    'num_channels': 256,
-})
+if not __COLAB:
+    args = dotdict({
+        'lr': 0.001,
+        'dropout': 0.1,
+        'epochs': 2,
+        'batch_size': 256,
+        'cuda': torch.cuda.is_available(),
+        'num_channels': 256,
+    })
+else:
+    args = dotdict({
+        'lr': 0.001,
+        'dropout': 0.1,
+        'epochs': 15,
+        'batch_size': 256,
+        'cuda': torch.cuda.is_available(),
+        'num_channels': 256,
+    })
 
 
 class NNetWrapper(NeuralNet):
