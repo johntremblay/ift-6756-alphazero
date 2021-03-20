@@ -43,14 +43,16 @@ class Arena():
         p = 1
         while self.game.getGameEnded(board, p) == 0:
             it += 1
-            if verbose:
-                assert self.display
-                print("Turn ", str(it), "Player ", str(curPlayer))
-                self.display(board)
 
             action = players[curPlayer + 1](self.game.getCanonicalForm(board, curPlayer))
 
             valids = self.game.getValidMoves_any_board(self.game.getCanonicalForm(board, curPlayer), curPlayer)
+
+            if verbose:
+                assert self.display
+                print("Turn ", str(it), "Player ", str(curPlayer))
+                self.display(board)
+                print("Action is", self.game.read_action(action), "from player", curPlayer)
 
             if valids[action] == 0:
                 move, build = self.game.read_action(action)
@@ -61,9 +63,8 @@ class Arena():
             board, curPlayer = self.game.getNextState_any_board(board, curPlayer, action)
         if verbose:
             assert self.display
-            print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(board, 1)))
+            print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(board, p)))
             self.display(board)
-        print(f"\n {board}")
         return self.game.getGameEnded(board, p)
 
     def playGames(self, num, verbose=False):

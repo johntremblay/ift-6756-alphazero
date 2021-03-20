@@ -131,21 +131,18 @@ class SantoriniGame(Game):
         :param player: -1 or 1 to represent a player
         :return: int -1 or 1 or 0 depending if the game is finished or not
         """
-        # TODO: Make sure that when we call this, is the game ended for a specific player
         b = Board(self.n)
         b.pieces = np.copy(board)
 
+        # Check to see if the other player can play or not
+        if not b.has_legal_moves_builds(-player):
+            return player
+
+        # Check to see if the player playing is at the top or not of a building
         outcome_p1 = np.where(b.pieces == player * 31)
         if outcome_p1[0].size > 0:
             return player
-        outcome_p2 = np.where(b.pieces == -player * 31)
-        if outcome_p2[0].size > 0:
-            return -player
 
-        if not b.has_legal_moves_builds(player):
-            return -player
-        elif not b.has_legal_moves_builds(-player):
-            return player
         return 0
 
     def getCanonicalForm(self, board, player):
