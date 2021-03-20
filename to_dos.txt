@@ -1,12 +1,13 @@
 # TODO: Could possibly let the player decide where to initiate its pawn
 # TODO: Change action space to be only the moves and not the cases -> Possibly 8**2 for move direction and build
 # TODO: Changes the state representation to be 5x5x4 (board) and 5x5x1 (players)
+# TODO: Add 2 other players to the game
 
 # TODO AS OF MARCH 20:
-- Pit to fix (FM)
-- Player to fix (ordre) (FM)
+- Pit to fix (FM) - done
+- Player to fix (ordre) (FM) - done
 - Logic to check (9 in arena sometimes) (FM)
-- SOmeone wins even though it was supposed to be the other (SantoriniGame) (FM)
+- SOmeone wins even though it was supposed to be the other (SantoriniGame) (FM) - done
 - Fix arena (qui qui recoit le nouveau Net et qui qui gagne) (JT)
 - COnfirm if action space is ok -> Maybe linked to invalid moves (JT)
 - Validate training by going in Pit if it beats random player (JT)

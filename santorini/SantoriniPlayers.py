@@ -3,23 +3,25 @@ import numpy as np
 
 # SANTORINI: IN PROGRESS
 class RandomPlayer():
-    def __init__(self, game):
+    def __init__(self, game, color):
         self.game = game
+        self.color = color
 
     def play(self, board):
         a = np.random.randint(self.game.getActionSize())
-        valids = self.game.getValidMoves(board, 1)
+        valids = self.game.getValidMoves(board, self.color)
         while valids[a]!=1:
             a = np.random.randint(self.game.getActionSize())
         return a
 
 class HumanSantoriniPlayer():
-    def __init__(self, game):
+    def __init__(self, game, color):
         self.game = game
+        self.color = color
 
     def play(self, board):
         # display(board)
-        valid = self.game.getValidMoves(board, 1)
+        valid = self.game.getValidMoves(board, self.color)
         for i in range(len(valid)):
             if valid[i]:
                 move, build = self.game.read_action(i)
