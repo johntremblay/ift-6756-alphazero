@@ -63,7 +63,9 @@ class Board():
 
         for y in range(self.n):
             for x in range(self.n):
-                if self[x][y] in [i * color for i in [1, 11, 21]]:
+                location = self[x][y]
+                possible_square = [i * color for i in [1, 11, 21]]
+                if location in possible_square:
                     newmoves = self.get_moves_for_square((x, y))
                     if len(newmoves) > 0:
                         return True

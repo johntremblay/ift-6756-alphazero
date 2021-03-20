@@ -16,7 +16,7 @@ __COLAB = False
 if not __COLAB:
     args = dotdict({
         'numIters': 25,
-        'numEps': 2,              # Number of complete self-play games to simulate during a new iteration.
+        'numEps': 20,              # Number of complete self-play games to simulate during a new iteration.
         'tempThreshold': 5,        #
         'updateThreshold': 0.5,     # During arena playoff, new neural net will be accepted if threshold or more of games are won.
         'maxlenOfQueue': 200000,    # Number of game examples to train the neural networks.

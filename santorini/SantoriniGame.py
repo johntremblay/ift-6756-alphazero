@@ -143,9 +143,9 @@ class SantoriniGame(Game):
             return -player
 
         if not b.has_legal_moves_builds(player):
+            _ = b.has_legal_moves_builds(player)
             return -player
-        elif not b.has_legal_moves_builds(-player):
-            return player
+
         return 0
 
     def getCanonicalForm(self, board, player):
