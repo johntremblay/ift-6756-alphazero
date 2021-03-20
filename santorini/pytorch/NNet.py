@@ -9,14 +9,26 @@ import torch
 import torch.optim as optim
 from .SantoriniNNet import SantoriniNNet as onnet
 
-args = dotdict({
-    'lr': 0.001,
-    'dropout': 0.1,
-    'epochs': 10,
-    'batch_size': 256,
-    'cuda': torch.cuda.is_available(),
-    'num_channels': 256,
-})
+__COLAB = True
+
+if not __COLAB:
+    args = dotdict({
+        'lr': 0.001,
+        'dropout': 0.1,
+        'epochs': 2,
+        'batch_size': 256,
+        'cuda': torch.cuda.is_available(),
+        'num_channels': 256,
+    })
+else:
+    args = dotdict({
+        'lr': 0.001,
+        'dropout': 0.1,
+        'epochs': 15,
+        'batch_size': 256,
+        'cuda': torch.cuda.is_available(),
+        'num_channels': 256,
+    })
 
 
 class NNetWrapper(NeuralNet):
@@ -46,7 +58,7 @@ class NNetWrapper(NeuralNet):
             # bar = Bar('Training Net', max=int(len(examples) / args.batch_size))
             batch_idx = 0
 
-            while batch_idx < int(len(examples) / args.batch_size):
+            while batch_idx <= int(len(examples) / args.batch_size):
                 sample_ids = np.random.randint(len(examples), size=args.batch_size)
                 boards, pis, vs = list(zip(*[examples[i] for i in sample_ids]))
                 boards = torch.FloatTensor(np.array(boards).astype(np.float64))
