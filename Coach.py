@@ -117,7 +117,7 @@ class Coach():
             log.info('PITTING AGAINST PREVIOUS VERSION')
             arena = Arena(lambda x: np.argmax(nmcts.getActionProb(x, temp=0, player=1)),
                           lambda x: np.argmax(pmcts.getActionProb(x, temp=0, player=-1)), self.game)
-            pwins, nwins, draws = arena.playGames(self.args.arenaCompare)
+            nwins, pwins, draws = arena.playGames(self.args.arenaCompare)
 
             log.info('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
             if pwins + nwins == 0 or float(nwins) / (pwins + nwins) < self.args.updateThreshold:
