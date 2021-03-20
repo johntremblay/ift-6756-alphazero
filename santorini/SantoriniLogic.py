@@ -83,7 +83,7 @@ class Board():
             move = self._discover_move(square, direction_move)
             if move is not None:
                 board = copy.deepcopy(self.pieces)
-                board = self._execute_move_any_board(board=board, move=move, color=np.sign(board[square[0], square[0]]))
+                board = self._execute_move_any_board(board=board, move=move, color=np.sign(board[square[0], square[1]]))
                 for direction_build in self.__directions_build:
                     build = self._discover_build_any_board(board=board, origin=move, direction=direction_build)
                     if build is not None:
@@ -115,6 +115,16 @@ class Board():
         x_build, y_build = build
         self[x_build][y_build] += 10
 
+    @staticmethod
+    def execute_move_build_any_board(board, move, build, color):
+        # Move
+        x_move, y_move = move
+        Board._remove_color_any(board, color)
+        board[x_move][y_move] = color * (board[x_move][y_move] + 1)
+
+        # Build
+        x_build, y_build = build
+        board[x_build][y_build] += 10
 
     def _remove_color(self, color):
         for y in range(self.n):
@@ -167,6 +177,9 @@ class Board():
         y_sum = y_orig + y_dir
 
         if not (x_sum >= self.n or y_sum >= self.n or x_sum < 0 or y_sum < 0):  # boundaries of board
+            new_pos = self[x_sum][y_sum]
+            not_in = [i * (-color) for i in [1, 11, 21, 31]]
+            not_cap = [40, -40]
             if (self[x_sum][y_sum] not in [i * (-color) for i in [1, 11, 21, 31]]) and (
                     self[x_sum][y_sum] not in [40, -40]):  # players present or capped building
                 if self[x_sum][y_sum] - color * (self[x_orig][y_orig] - color) <= 10:  # can only climb 1 floor at a time so need a max dif of 10

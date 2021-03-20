@@ -71,8 +71,8 @@ class SantoriniGame(Game):
         b.pieces = np.copy(board)
 
         move, build = SantoriniGame.read_action_any_board(action)
+        # b.execute_move_build_any_board(board, move, build, player)
         b.execute_move_build(move, build, player)
-
         return (b.pieces, -player)
 
     @staticmethod
@@ -123,6 +123,31 @@ class SantoriniGame(Game):
 
         return np.array(valids)
 
+    # def getGameEnded(self, board, player):
+    #     """
+    #     This method outputs if within a current state of the board if the game is finished and a player as won or
+    #     not.
+    #     :param board: np array representation of the board
+    #     :param player: -1 or 1 to represent a player
+    #     :return: int -1 or 1 or 0 depending if the game is finished or not
+    #     """
+    #     # TODO: Make sure that when we call this, is the game ended for a specific player
+    #     b = Board(self.n)
+    #     b.pieces = np.copy(board)
+    #
+    #     outcome_p1 = np.where(b.pieces == player * 31)
+    #     if outcome_p1[0].size > 0:
+    #         return player
+    #     outcome_p2 = np.where(b.pieces == -player * 31)
+    #     if outcome_p2[0].size > 0:
+    #         return -player
+    #
+    #     if not b.has_legal_moves_builds(player):
+    #         _ = b.has_legal_moves_builds(player)
+    #         return -player
+    #
+    #     return 0
+
     def getGameEnded(self, board, player):
         """
         This method outputs if within a current state of the board if the game is finished and a player as won or
@@ -131,10 +156,10 @@ class SantoriniGame(Game):
         :param player: -1 or 1 to represent a player
         :return: int -1 or 1 or 0 depending if the game is finished or not
         """
-        # TODO: Make sure that when we call this, is the game ended for a specific player
         b = Board(self.n)
         b.pieces = np.copy(board)
 
+        # Check to see if the player playing is at the top or not of a building
         outcome_p1 = np.where(b.pieces == player * 31)
         if outcome_p1[0].size > 0:
             return player
@@ -142,9 +167,10 @@ class SantoriniGame(Game):
         if outcome_p2[0].size > 0:
             return -player
 
-        if not b.has_legal_moves_builds(player):
-            _ = b.has_legal_moves_builds(player)
-            return -player
+        # Check to see if the other player can play or not
+        if not b.has_legal_moves_builds(-player):
+            _ = b.has_legal_moves_builds(-player)
+            return player
 
         return 0
 
