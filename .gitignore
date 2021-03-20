@@ -3,9 +3,17 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
+# C extensions]
+*.sh
 *.so
-
+*.tar
+*.pth.tar
+.idea/
+checkpoint/
+save/
+temp/
+downloads/
+training/
 # Distribution / packaging
 .Python
 build/
