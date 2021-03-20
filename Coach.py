@@ -67,7 +67,14 @@ class Coach():
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action)
             r = self.game.getGameEnded(board, p)
             if r != 0:
-                return [(x[0], x[2], r * ((-1) ** (x[1] != self.curPlayer))) for x in trainExamples]
+                output = []
+                for x in trainExamples:
+                    nnboard = x[0]  # returns a board state
+                    prob_dist = x[2]  # prob distribution of actions
+                    episode_outcome = r  # this is the results of the game (-1 or +1) depending who won at the end
+                    out = (nnboard, prob_dist, episode_outcome)
+                    output.append(out)
+                return output
 
     def learn(self):
         """
