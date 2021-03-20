@@ -12,10 +12,10 @@ from .SantoriniNNet import SantoriniNNet as onnet
 args = dotdict({
     'lr': 0.001,
     'dropout': 0.1,
-    'epochs': 2,
-    'batch_size': 8,
+    'epochs': 10,
+    'batch_size': 256,
     'cuda': torch.cuda.is_available(),
-    'num_channels': 8,
+    'num_channels': 256,
 })
 
 
