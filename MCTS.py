@@ -79,7 +79,7 @@ class MCTS():
             self.Es[s] = self.game.getGameEnded(canonicalBoard, player)  # sending player 1 only
         if self.Es[s] != 0:
             # terminal node
-            return -self.Es[s]
+            return self.Es[s]
 
         if s not in self.Ps:
             # leaf node
@@ -106,7 +106,7 @@ class MCTS():
 
             self.Vs[s] = valids
             self.Ns[s] = 0
-            return -v
+            return v
 
         r = self.game.getGameEnded_any_board(canonicalBoard, player)
         if r in [-1, 1]:
@@ -129,7 +129,6 @@ class MCTS():
                     best_act = a
 
         a = best_act
-        move, build = self.game.read_action_any_board(a)
         next_s, next_player = self.game.getNextState_any_board(canonicalBoard, player, a)
         next_s = self.game.getCanonicalForm(next_s, player)
 
@@ -144,4 +143,4 @@ class MCTS():
             self.Nsa[(s, a)] = 1
 
         self.Ns[s] += 1
-        return -v
+        return v
