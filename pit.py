@@ -18,17 +18,17 @@ human_vs_cpu = True
 g = SantoriniGame(5)
 
 # all players
-rp1 = RandomPlayer(g, 1).play
+# rp1 = RandomPlayer(g, 1).play
 rp2 = RandomPlayer(g, -1).play
-hp1 = HumanSantoriniPlayer(g, 1).play
-hp2 = HumanSantoriniPlayer(g, -1).play
+# hp1 = HumanSantoriniPlayer(g, 1).play
+# hp2 = HumanSantoriniPlayer(g, -1).play
 
 # # nnet players
-# n1 = NNet(g)
-# n1.load_checkpoint('./temp/','best.pth.tar')
-# args1 = dotdict({'numMCTSSims': 50, 'cpuct':1.0})
-# mcts1 = MCTS(g, n1, args1)
-# n1p = lambda x: np.argmax(mcts1.getActionProb(x, temp=0))
+n1 = NNet(g)
+n1.load_checkpoint('./temp/','checkpoint_5.pth.tar')
+args1 = dotdict({'numMCTSSims': 6, 'cpuct':1.0})
+mcts1 = MCTS(g, n1, args1)
+n1p = lambda x: np.argmax(mcts1.getActionProb(x, temp=0, player=1))
 #
 # if human_vs_cpu:
 #     player2 = hp
@@ -41,6 +41,8 @@ hp2 = HumanSantoriniPlayer(g, -1).play
 #
 #     player2 = n2p  # Player 2 is neural network if it's cpu vs cpu.
 
-arena = Arena.Arena(rp1, rp2, g, display=SantoriniGame.display)
+# n1p = lambda x: np.argmax(mcts1.getActionProb(x, temp=0, player = -1))
 
-print(arena.playGames(10, verbose=True))
+arena = Arena.Arena(n1p, rp2, g, display=SantoriniGame.display)
+
+print(arena.playGames(100, verbose=False))
