@@ -88,10 +88,8 @@ class MCTS():
             # TODO: POTENTIAL ISSUE -> VALID FOR 1 BUT NOT -1?
             valids = self.game.getValidMoves_any_board(canonicalBoard, player)  # sending player 1 only
             if np.sum(valids) == 0:
-                if self.Es[s] != 0:
-                    # terminal node
-                    return -self.Es[s]
-                log.error("No valid moves, issue in MCTS")
+                r = self.game.getGameEnded(canonicalBoard, player)
+                log.error(f"No valid moves, issue in MCTS - r is {r} and player is {player}")
             self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:

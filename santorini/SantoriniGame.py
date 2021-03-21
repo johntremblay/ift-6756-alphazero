@@ -173,6 +173,10 @@ class SantoriniGame(Game):
         if outcome_p2[0].size > 0:
             return -player
 
+        # Check to see if the player can play or not
+        if not b.has_legal_moves_builds(player):
+            _ = b.has_legal_moves_builds(player)
+            return -player
         # Check to see if the other player can play or not
         if not b.has_legal_moves_builds(-player):
             _ = b.has_legal_moves_builds(-player)
