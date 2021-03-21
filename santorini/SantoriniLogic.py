@@ -83,7 +83,8 @@ class Board():
             move = self._discover_move(square, direction_move)
             if move is not None:
                 board = copy.deepcopy(self.pieces)
-                board = self._execute_move_any_board(board=board, move=move, color=np.sign(board[square[0], square[1]]))
+                the_sign = np.sign(board[square[0], square[1]])
+                board = Board._execute_move_any_board(board=board, move=move, color=the_sign)
                 for direction_build in self.__directions_build:
                     build = self._discover_build_any_board(board=board, origin=move, direction=direction_build)
                     if build is not None:
@@ -100,31 +101,42 @@ class Board():
         :return:
         """
         x_move, y_move = move
-        Board._remove_color_any(board, color)
+        prev_board = copy.deepcopy(board)
+        board = Board._remove_color_any(board, color)
         board[x_move][y_move] = color * (board[x_move][y_move] + 1)
+        check = [color * a for a in [1, 11, 21, 31]]
+        if board[x_move][y_move] not in check:
+            _ = 1
         return board
 
 
     def execute_move_build(self, move, build, color):
         # Move
+        prev_board = copy.deepcopy(self.pieces)
         x_move, y_move = move
         self._remove_color(color)
         self[x_move][y_move] = color * (self[x_move][y_move] + 1)
-
+        check = [color * a for a in [1, 11, 21, 31]]
+        if self[x_move][y_move] not in check:
+            _ = 1
         # Build
         x_build, y_build = build
         self[x_build][y_build] += 10
 
     @staticmethod
     def execute_move_build_any_board(board, move, build, color):
+        prev_board = copy.deepcopy(board)
         # Move
         x_move, y_move = move
-        Board._remove_color_any(board, color)
+        board = Board._remove_color_any(board, color)
         board[x_move][y_move] = color * (board[x_move][y_move] + 1)
-
+        check = [color * a for a in [1, 11, 21, 31]]
+        if board[x_move][y_move] not in check:
+            _ = 1
         # Build
         x_build, y_build = build
         board[x_build][y_build] += 10
+        return board
 
     def _remove_color(self, color):
         for y in range(self.n):

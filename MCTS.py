@@ -1,7 +1,7 @@
 import logging
 import math
 from santorini.SantoriniGame import getNNForm
-
+import copy
 import numpy as np
 
 EPS = 1e-8
@@ -35,8 +35,9 @@ class MCTS():
             probs: a policy vector where the probability of the ith action is
                    proportional to Nsa[(s,a)]**(1./temp)
         """
+        search_board = copy.deepcopy(canonicalBoard)
         for i in range(self.args.numMCTSSims):
-            self.search(canonicalBoard, player=player)
+            self.search(search_board, player=player)
 
         s = self.game.stringRepresentation(canonicalBoard)
         counts = [self.Nsa[(s, a)] if (s, a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
@@ -85,13 +86,16 @@ class MCTS():
             # leaf node
             nn_form = getNNForm(canonicalBoard)
             self.Ps[s], v = self.nnet.predict(nn_form)
+            # TODO: POTENTIAL ISSUE -> VALID FOR 1 BUT NOT -1?
             valids = self.game.getValidMoves_any_board(canonicalBoard, player)  # sending player 1 only
+            if np.sum(valids) == 0:
+                log.error("No valid moves, issue in MCTS")
             self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:
                 self.Ps[s] /= sum_Ps_s  # renormalize
             else:
-                pass
+                log.error("All valid moves were masked, issue in MCTS")
                 # if all valid moves were masked make all valid moves equally probable
                 # NB! All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.   
@@ -101,7 +105,7 @@ class MCTS():
 
             self.Vs[s] = valids
             self.Ns[s] = 0
-            return -v * player
+            return -v
 
         valids = self.Vs[s]
         cur_best = -float('inf')

@@ -59,6 +59,9 @@ class SantoriniGame(Game):
 
         move, build = self.read_action(action)
         b.execute_move_build(move, build, player)
+        if not board_checker(b.pieces):
+            _ = 1
+
 
         return (b.pieces, -player)
 
@@ -71,9 +74,11 @@ class SantoriniGame(Game):
         b.pieces = np.copy(board)
 
         move, build = SantoriniGame.read_action_any_board(action)
-        # b.execute_move_build_any_board(board, move, build, player)
-        b.execute_move_build(move, build, player)
-        return (b.pieces, -player)
+        board = b.execute_move_build_any_board(board, move, build, player)
+        # b.execute_move_build(move, build, player)
+        if not board_checker(board):
+            _ = 1
+        return (board, -player)
 
     @staticmethod
     def read_action_any_board(action):
@@ -81,6 +86,7 @@ class SantoriniGame(Game):
         move = (int(action / 5 ** 3), int((action / 5 ** 2) % 5))
         build = (int((action / 5) % 5), int(action % 5))
         return move, build
+
 
     def read_action(self, action):
         move = (int(action / self.n ** 3), int((action / self.n ** 2) % self.n))
@@ -245,3 +251,11 @@ def getNNForm(board):
                 board_i = board_level_map[square]
             nn_board[board_i, row, col] = 1.0
     return nn_board
+
+def board_checker(board):
+    for i in range(board.shape[0]):
+        for j in range(board.shape[0]):
+            list_of_moves = list(SantoriniGame.square_content.keys())
+            if board[i][j] not in list_of_moves:
+                return False
+    return True
