@@ -9,13 +9,13 @@ import torch
 import torch.optim as optim
 from .SantoriniNNet import SantoriniNNet as onnet
 
-__COLAB = True
+__COLAB = False
 
 if not __COLAB:
     args = dotdict({
         'lr': 0.001,
         'dropout': 0.1,
-        'epochs': 2,
+        'epochs': 10,
         'batch_size': 16,
         'cuda': torch.cuda.is_available(),
         'num_channels': 16,
@@ -125,7 +125,7 @@ class NNetWrapper(NeuralNet):
         return torch.exp(pi).data.cpu().numpy()[0], v.data.cpu().numpy()[0]
 
     def loss_pi(self, targets, outputs):
-        return -torch.sum(targets * outputs) / targets.size()[0]
+        return torch.sum(targets * outputs) / targets.size()[0]
 
     def loss_v(self, targets, outputs):
         return torch.sum((targets - outputs.view(-1)) ** 2) / targets.size()[0]
