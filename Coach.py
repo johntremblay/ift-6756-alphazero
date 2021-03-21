@@ -68,7 +68,7 @@ class Coach():
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action)
             r = self.game.getGameEnded(board, p)
             if r != 0:
-                print(f"\n {board}")
+                print(f"\n {board} \n {r}")
                 output = []
                 for x in trainExamples:
                     nnboard = x[0]  # returns a board state

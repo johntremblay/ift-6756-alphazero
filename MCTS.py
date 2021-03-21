@@ -87,7 +87,7 @@ class MCTS():
             self.Ps[s], v = self.nnet.predict(nn_form)
             valids = self.game.getValidMoves_any_board(canonicalBoard, player)  # sending player 1 only
             if np.sum(valids) == 0:
-                log.error(f"No valid moves, issue in MCTS - r is {r} and player is {player}")
+                log.error(f"No valid moves, issue in MCTS")
             self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0 or sum_Ps_s < 1:
@@ -125,7 +125,7 @@ class MCTS():
         next_s, next_player = self.game.getNextState_any_board(canonicalBoard, player, a)
         next_s = self.game.getCanonicalForm(next_s, player)
 
-        v = self.search(next_s, next_player)  # issue can happen here since we can send the board as player -1 playing and MCTS only considers player 1
+        v = self.search(next_s, next_player)
 
         if (s, a) in self.Qsa:
             self.Qsa[(s, a)] = (self.Nsa[(s, a)] * self.Qsa[(s, a)] + v) / (self.Nsa[(s, a)] + 1)
