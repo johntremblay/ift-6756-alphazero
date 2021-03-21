@@ -49,6 +49,7 @@ class MCTS():
             probs[bestA] = 1
             return probs
 
+        # print(np.where(np.array(counts) > 0))
         counts = [x ** (1. / temp) for x in counts]
         counts_sum = float(sum(counts))
         probs = [x / counts_sum for x in counts]
@@ -74,7 +75,6 @@ class MCTS():
             v: the negative of the value of the current canonicalBoard
         """
         s = self.game.stringRepresentation(canonicalBoard, player)
-
         if s not in self.Es:
             self.Es[s] = self.game.getGameEnded(canonicalBoard, player)  # sending player 1 only
         if self.Es[s] != 0:
@@ -85,17 +85,14 @@ class MCTS():
             # leaf node
             nn_form = getNNForm(canonicalBoard)
             self.Ps[s], v = self.nnet.predict(nn_form)
-            # TODO: POTENTIAL ISSUE -> VALID FOR 1 BUT NOT -1?
             valids = self.game.getValidMoves_any_board(canonicalBoard, player)  # sending player 1 only
             if np.sum(valids) == 0:
-                r = self.game.getGameEnded(canonicalBoard, player)
                 log.error(f"No valid moves, issue in MCTS - r is {r} and player is {player}")
             self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
-            if sum_Ps_s > 0:
+            if sum_Ps_s > 0 or sum_Ps_s < 1:
                 self.Ps[s] /= sum_Ps_s  # renormalize
             else:
-                _ = 1
                 log.error("All valid moves were masked, issue in MCTS")
                 # if all valid moves were masked make all valid moves equally probable
                 # NB! All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
@@ -107,10 +104,6 @@ class MCTS():
             self.Vs[s] = valids
             self.Ns[s] = 0
             return v
-
-        r = self.game.getGameEnded_any_board(canonicalBoard, player)
-        if r in [-1, 1]:
-            return r
 
         valids = self.Vs[s]
         cur_best = -float('inf')

@@ -241,7 +241,7 @@ class SantoriniGame(Game):
         # return l
 
     def stringRepresentation(self, board, player):
-        string_rep = board.tostring()
+        string_rep = np.array2string(board, precision=0, separator=',', suppress_small=True)
         string_rep = f'{string_rep}_{player}'
         return string_rep
 

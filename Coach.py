@@ -4,7 +4,7 @@ import sys
 from collections import deque
 from pickle import Pickler, Unpickler
 from random import shuffle
-
+import copy
 import numpy as np
 from tqdm import tqdm
 from santorini.SantoriniGame import getNNForm
@@ -62,11 +62,13 @@ class Coach():
                 b = getNNForm(b)
                 trainExamples.append([b, self.curPlayer, p, None])
 
+            # print(np.where(np.array(pi) > 0))
             action = np.random.choice(len(pi), p=pi)
             p = self.curPlayer
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action)
             r = self.game.getGameEnded(board, p)
             if r != 0:
+                print(f"\n {board}")
                 output = []
                 for x in trainExamples:
                     nnboard = x[0]  # returns a board state
@@ -89,11 +91,11 @@ class Coach():
             # bookkeeping
             log.info(f'Starting Iter #{i} ...')
             # examples of the iteration
+
             if not self.skipFirstSelfPlay or i > 1:
                 iterationTrainExamples = deque([], maxlen=self.args.maxlenOfQueue)
-
+                self.mcts = MCTS(self.game, self.nnet, self.args)  # reset search tree
                 for _ in tqdm(range(self.args.numEps), desc="Self Play"):
-                    self.mcts = MCTS(self.game, self.nnet, self.args)  # reset search tree
                     iterationTrainExamples += self.executeEpisode()
 
                 # save the iteration examples to the history 
