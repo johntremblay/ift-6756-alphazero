@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 coloredlogs.install(level='INFO')  # Change this to DEBUG to see more info.
 
-__COLAB = False
+__COLAB = True
 
 if not __COLAB:
     args = dotdict({
