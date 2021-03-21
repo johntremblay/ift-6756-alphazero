@@ -134,13 +134,13 @@ class SantoriniGame(Game):
         b = Board(self.n)
         b.pieces = np.copy(board)
 
-        # Check to see if the other player can play or not
-        if not b.has_legal_moves_builds(-player):
-            return player
-
         # Check to see if the player playing is at the top or not of a building
         outcome_p1 = np.where(b.pieces == player * 31)
         if outcome_p1[0].size > 0:
+            return player
+
+        # Check to see if the other player can play or not
+        if not b.has_legal_moves_builds(-player):
             return player
 
         return 0

@@ -41,6 +41,6 @@ hp2 = HumanSantoriniPlayer(g, -1).play
 #
 #     player2 = n2p  # Player 2 is neural network if it's cpu vs cpu.
 
-arena = Arena.Arena(rp1, rp2, g, display=SantoriniGame.display)
+arena = Arena.Arena(hp1, hp2, g, display=SantoriniGame.display)
 
-print(arena.playGames(10, verbose=True))
+print(arena.playGames(1, verbose=True))
