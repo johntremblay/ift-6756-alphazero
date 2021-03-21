@@ -180,6 +180,33 @@ class SantoriniGame(Game):
 
         return 0
 
+
+    @staticmethod
+    def getGameEnded_any_board(board, player):
+        """
+        This method outputs if within a current state of the board if the game is finished and a player as won or
+        not.
+        :param board: np array representation of the board
+        :param player: -1 or 1 to represent a player
+        :return: int -1 or 1 or 0 depending if the game is finished or not
+        """
+        b = Board(5)
+        b.pieces = np.copy(board)
+
+        # Check to see if the player playing is at the top or not of a building
+        outcome_p1 = np.where(b.pieces == player * 31)
+        if outcome_p1[0].size > 0:
+            return player
+        outcome_p2 = np.where(b.pieces == -player * 31)
+        if outcome_p2[0].size > 0:
+            return -player
+
+        # Check to see if the other player can play or not
+        if not b.has_legal_moves_builds(-player):
+            _ = b.has_legal_moves_builds(-player)
+            return player
+        return 0
+
     def getCanonicalForm(self, board, player):
         # TODO: Really necessary?
         # return state if player==1, else return -state if player==-1
@@ -209,8 +236,10 @@ class SantoriniGame(Game):
         #         l += [(newB, list(newPi.ravel()) + [pi[-1]])]
         # return l
 
-    def stringRepresentation(self, board):
-        return board.tostring()
+    def stringRepresentation(self, board, player):
+        string_rep = board.tostring()
+        string_rep = f'{string_rep}_{player}'
+        return string_rep
 
     def stringRepresentationReadable(self, board):
         board_s = "".join(self.square_content[square] for row in board for square in row)

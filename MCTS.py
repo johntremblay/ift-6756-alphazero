@@ -39,7 +39,7 @@ class MCTS():
         for i in range(self.args.numMCTSSims):
             self.search(search_board, player=player)
 
-        s = self.game.stringRepresentation(canonicalBoard)
+        s = self.game.stringRepresentation(canonicalBoard, player)
         counts = [self.Nsa[(s, a)] if (s, a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
 
         if temp == 0:
@@ -73,8 +73,7 @@ class MCTS():
         Returns:
             v: the negative of the value of the current canonicalBoard
         """
-
-        s = self.game.stringRepresentation(canonicalBoard)
+        s = self.game.stringRepresentation(canonicalBoard, player)
 
         if s not in self.Es:
             self.Es[s] = self.game.getGameEnded(canonicalBoard, player)  # sending player 1 only
@@ -89,12 +88,16 @@ class MCTS():
             # TODO: POTENTIAL ISSUE -> VALID FOR 1 BUT NOT -1?
             valids = self.game.getValidMoves_any_board(canonicalBoard, player)  # sending player 1 only
             if np.sum(valids) == 0:
+                if self.Es[s] != 0:
+                    # terminal node
+                    return -self.Es[s]
                 log.error("No valid moves, issue in MCTS")
             self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:
                 self.Ps[s] /= sum_Ps_s  # renormalize
             else:
+                _ = 1
                 log.error("All valid moves were masked, issue in MCTS")
                 # if all valid moves were masked make all valid moves equally probable
                 # NB! All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
@@ -106,6 +109,10 @@ class MCTS():
             self.Vs[s] = valids
             self.Ns[s] = 0
             return -v
+
+        r = self.game.getGameEnded_any_board(canonicalBoard, player)
+        if r in [-1, 1]:
+            return r
 
         valids = self.Vs[s]
         cur_best = -float('inf')
@@ -124,6 +131,7 @@ class MCTS():
                     best_act = a
 
         a = best_act
+        move, build = self.game.read_action_any_board(a)
         next_s, next_player = self.game.getNextState_any_board(canonicalBoard, player, a)
         next_s = self.game.getCanonicalForm(next_s, player)
 
