@@ -8,41 +8,18 @@ import numpy as np
 
 
 class SantoriniGame(Game):
-    square_content = {
-        -31: "3-X",
-        -21: "2-X",
-        -11: "1-X",
-        -1: "0-X",
-        +40: "CAP",
-        +30: "3--",
-        +20: "2--",
-        +10: "1--",
-        +0: "0--",
-        +31: "3-O",
-        +21: "2-O",
-        +11: "1-O",
-        +1: "0-O"
-    }
 
-    @staticmethod
-    def getSquarePiece(piece):
-        """
-        Function to get the mapping from the board representation to the square content dictionary
-        :param piece: Representation in number of the board square
-        :return: The readable representation of the board square
-        """
-        return SantoriniGame.square_content[piece]
-
-    def __init__(self, n):
+    def __init__(self, n_board, n_tower):
         super().__init__()
-        self.n = n
+        self.n_board = n_board
+        self.n_tower = n_tower
 
     def getInitBoard(self):
         """
         Function to get the initial board of the game
         :return: Initial board of the game
         """
-        b = Board(self.n)
+        b = Board(self.n_board, self.n_tower)
         return np.array(b.pieces)
 
     def getBoardSize(self):
@@ -50,15 +27,16 @@ class SantoriniGame(Game):
         Function to get the dimension of the board.
         :return: (mapping of the square content x dim of board x dim of board)
         """
-        return (13, self.n, self.n)
+        return ((self.n_tower+1), self.n_board, self.n_board)
 
     def getActionSize(self):
         """
         Function to get the action space dimension.
-        :return: 5x5 moves x 5x5 builds
+        :return: moves (8) x builds (8)
         """
-        return self.n ** 4
+        return 8 * 8
 
+    #TODO: FIX DEPENDING ON READ_ACTION
     def getNextState(self, board, player, action):
         """
         Function to get the next board from an action that was performed by the current player.
@@ -67,25 +45,15 @@ class SantoriniGame(Game):
         :param action: The action to be perform (raw in our case)
         :return: (State after action, opponent player of current player (1,-1)
         """
-        b = Board(self.n)
+        b = Board(self.n_board, self.n_tower)
         b.pieces = np.copy(board)
 
-        move, build = self.read_action(action)
+        move, build = b.read_action(action, player) # possible problem here
         b.execute_move_build(move, build, player)
 
         return (b.pieces, -player)
 
-    def read_action(self, action):
-        """
-        Function to return the mapping of the action number to actual move and build action that is readable by us.
-        :param n: The board dimension
-        :param action: The raw action in numeric
-        :return: move (format (x, y)), build (format (z, w))
-        """
-        move = (int(action / self.n ** 3), int((action / self.n ** 2) % self.n))
-        build = (int((action / self.n) % self.n), int(action % self.n))
-        return move, build
-
+    #TODO: VALID HERE
     def getValidMoves(self, board, player):
         """
         Function that give back a one-hot encoded vector of all valid moves of the action space
@@ -93,19 +61,18 @@ class SantoriniGame(Game):
         :param player: The player that will take the actions
         :return: One-hot encoded vector of all valid moves of the action space
         """
-        # return a fixed size binary vector
-        valids = [0] * self.getActionSize()
-        b = Board(self.n)
-        b.pieces = np.copy(board)
-        legalMoves = b.get_legal_moves_builds(player)
+        valids = [0]*self.getActionSize()
 
-        if len(legalMoves) == 0:
+        b = Board(self.n_board, self.n_tower)
+        b.pieces = np.copy(board)
+
+        legalMoves, legalMoves_direction = b.get_legal_moves_builds(player)
+
+        if len(legalMoves_direction) == 0:
             return np.array(valids)
 
-        for move, build in legalMoves:
-            x_move, y_move = move
-            x_build, y_build = build
-            valids[(self.n ** 3) * x_move + (self.n ** 2) * y_move + (self.n) * x_build + y_build] = 1
+        for move_build_direction in legalMoves_direction:
+            valids[Board.list_direction_move_build.index(move_build_direction)] = 1
 
         return np.array(valids)
 
@@ -116,14 +83,21 @@ class SantoriniGame(Game):
         :param player: The player that is looking if he won or not
         :return: 1 if the player has won, -1 if he lost, 0 if the game is still pending.
         """
-        b = Board(self.n)
+        b = Board(self.n_board, self.n_tower)
         b.pieces = np.copy(board)
 
-        outcome_p1 = np.where(b.pieces == player * 31)
-        if outcome_p1[0].size > 0:
+        for x in range(self.n_board):
+            for y in range(self.n_board):
+                if b.pieces[-1][x][y] == player:
+                    player_coordinate_x = x
+                    player_coordinate_y = y
+                if b.pieces[-1][x][y] == -player:
+                    opponent_coordinate_x = x
+                    opponent_coordinate_y = y
+
+        if np.sum(b.pieces[:-1], axis=0)[player_coordinate_x][player_coordinate_y] == 3:
             return 1
-        outcome_p1 = np.where(b.pieces == -player * 31)
-        if outcome_p1[0].size > 0:
+        if np.sum(b.pieces[:-1], axis=0)[opponent_coordinate_x][opponent_coordinate_y] == 3:
             return -1
 
         if not b.has_legal_moves_builds(-player):
@@ -141,19 +115,16 @@ class SantoriniGame(Game):
         :param player: The player that is playing (1, -1)
         :return: The board switch from the player's point of view
         """
-        assert isinstance(board, np.ndarray)
-        output = player * board
-        for row in range(output.shape[0]):
-            for col in range(output.shape[1]):
-                if output[row][col] in [-10, -20, -30, -40]:
-                    output[row][col] = output[row][col] * -1
-        return output
+        b = Board(self.n_board, self.n_tower)
+        b.pieces = np.copy(board)
+
+        b.pieces[-1] = player * b.pieces[-1]
+        return b.pieces
 
 
     # TODO: Major work here
     def getSymmetries(self, board, pi):
         # mirror, rotational
-        assert (len(pi) == self.n ** 4)  # 1 for pass
         return [(board, pi)]
         # pi_board = np.reshape(pi[:-1], (self.n, self.n))
         # l = []
@@ -176,53 +147,24 @@ class SantoriniGame(Game):
         """
         return board.tostring()
 
-    def stringRepresentationReadable(self, board):
-        """
-        Similar function as above
-        :param board: The state representation
-        :return: The state representation in string format
-        """
-        board_s = "".join(self.square_content[square] for row in board for square in row)
-        return board_s
-
     @staticmethod
     def display(board):
-        n = board.shape[0]
+        n_board = board.shape[1]
         print("    ", end="")
-        for y in range(n):
-            print(y, end="   ")
+        for y in range(n_board):
+            print(y, end="    ")
         print("")
-        print("------------------------")
-        for y in range(n):
-            print(y, "|", end="")  # print the row #
-            for x in range(n):
-                piece = board[y][x]  # get the piece to print
-                if piece in [-10, -20, -30, -40]:
-                    piece *= -1
-                print(SantoriniGame.square_content[piece], end=" ")
+        print("-----------------------------")
+        for x in range(n_board):
+            print(x, "|", end="")  # print the row #
+            for y in range(n_board):
+                piece = board[-1][x][y]  # get the piece to print
+                if piece == 0:
+                    print(np.sum(board[:-1], axis=0)[x][y], "-", end="  ")
+                elif piece == -1:
+                    print(np.sum(board[:-1], axis=0)[x][y], "O", end="  ")
+                else:
+                    print(np.sum(board[:-1], axis=0)[x][y], "X", end="  ")
             print("|")
 
-        print("------------------------")
-
-def board_checker(board):
-    for i in range(board.shape[0]):
-        for j in range(board.shape[0]):
-            list_of_moves = list(SantoriniGame.square_content.keys())
-            if board[i][j] not in list_of_moves:
-                return False
-    return True
-
-def getNNForm(board):
-    assert isinstance(board, np.ndarray), 'Only accepts numpy array representation'
-    board_level_map = {key: idx for idx, key in enumerate(SantoriniGame.square_content.keys())}
-    nn_board = np.zeros((len(SantoriniGame.square_content), board.shape[0], board.shape[1]))
-    for row in range(board.shape[0]):
-        for col in range(board.shape[1]):
-            square = board[row][col]
-            if square in [-10, -20, -30, -40]:
-                board_i = board_level_map[-square]
-            else:
-                board_i = board_level_map[square]
-            nn_board[board_i, row, col] = 1.0
-    return nn_board
-
+        print("-----------------------------")

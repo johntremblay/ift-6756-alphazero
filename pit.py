@@ -15,7 +15,7 @@ any agent.
 
 human_vs_cpu = True
 
-g = SantoriniGame(5)
+g = SantoriniGame(5, 4)
 
 # all players
 rp = RandomPlayer(g).play
@@ -42,4 +42,4 @@ hp = HumanSantoriniPlayer(g).play
 # arena = Arena.Arena(rp, rp, g, display=SantoriniGame.display)
 arena = Arena.Arena(rp, rp, g, display=SantoriniGame.display)
 
-print(arena.playGames(1000, verbose=True))
+print(arena.playGames(10, verbose=True))

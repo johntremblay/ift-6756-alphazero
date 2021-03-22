@@ -10,7 +10,6 @@ from tqdm import tqdm
 
 from Arena import Arena
 from MCTS import MCTS
-from santorini.SantoriniGame import getNNForm
 
 log = logging.getLogger(__name__)
 
@@ -59,7 +58,6 @@ class Coach():
             pi = self.mcts.getActionProb(canonicalBoard, temp=temp)
             sym = self.game.getSymmetries(canonicalBoard, pi)
             for b, p in sym:
-                b = getNNForm(b) # TO REMOVE ONCE GOOD REPRESENTATION
                 trainExamples.append([b, self.curPlayer, p, None])
 
             action = np.random.choice(len(pi), p=pi)

@@ -50,7 +50,7 @@ else:
 
 def main():
     log.info('Loading %s...', Game.__name__)
-    g = Game(5)
+    g = Game(5, 4)
 
     log.info('Loading %s...', nn.__name__)
     nnet = nn(g)
