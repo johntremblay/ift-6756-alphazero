@@ -26,6 +26,11 @@ class SantoriniGame(Game):
 
     @staticmethod
     def getSquarePiece(piece):
+        """
+        Function to get the mapping from the board representation to the square content dictionary
+        :param piece: Representation in number of the board square
+        :return: The readable representation of the board square
+        """
         return SantoriniGame.square_content[piece]
 
     def __init__(self, n):
@@ -33,27 +38,35 @@ class SantoriniGame(Game):
         self.n = n
 
     def getInitBoard(self):
-        # return initial board (numpy board)
+        """
+        Function to get the initial board of the game
+        :return: Initial board of the game
+        """
         b = Board(self.n)
         return np.array(b.pieces)
 
     def getBoardSize(self):
-        # TODO: Possibly change repsentation to a lower dimension (5x5x5)
-        return 13, self.n, self.n
+        """
+        Function to get the dimension of the board.
+        :return: (mapping of the square content x dim of board x dim of board)
+        """
+        return (13, self.n, self.n)
 
     def getActionSize(self):
-        # return number of actions
-        # TODO: Possibly reduce to 8**2
+        """
+        Function to get the action space dimension.
+        :return: 5x5 moves x 5x5 builds
+        """
         return self.n ** 4
 
-    @staticmethod
-    def getActionSize_any_board(n):
-        # return number of actions
-        return n ** 4
-
     def getNextState(self, board, player, action):
-        # if player takes action on board, return next (board, player)
-        # action must be a valid move
+        """
+        Function to get the next board from an action that was performed by the current player.
+        :param board: The board of the game before the action to be performed
+        :param player: The player (1, -1) that will perform the action
+        :param action: The action to be perform (raw in our case)
+        :return: (State after action, opponent player of current player (1,-1)
+        """
         b = Board(self.n)
         b.pieces = np.copy(board)
 
@@ -62,32 +75,24 @@ class SantoriniGame(Game):
 
         return (b.pieces, -player)
 
-    @staticmethod
-    def getNextState_any_board(board, player, action):
-        # if player takes action on board, return next (board,player)
-        # action must be a valid move
-        # TODO: if larger board
-        b = Board(5)
-        b.pieces = np.copy(board)
-
-        move, build = SantoriniGame.read_action_any_board(action)
-        b.execute_move_build(move, build, player)
-
-        return (b.pieces, -player)
-
-    @staticmethod
-    def read_action_any_board(action):
-        # TODO: Board size
-        move = (int(action / 5 ** 3), int((action / 5 ** 2) % 5))
-        build = (int((action / 5) % 5), int(action % 5))
-        return move, build
-
     def read_action(self, action):
+        """
+        Function to return the mapping of the action number to actual move and build action that is readable by us.
+        :param n: The board dimension
+        :param action: The raw action in numeric
+        :return: move (format (x, y)), build (format (z, w))
+        """
         move = (int(action / self.n ** 3), int((action / self.n ** 2) % self.n))
         build = (int((action / self.n) % self.n), int(action % self.n))
         return move, build
 
     def getValidMoves(self, board, player):
+        """
+        Function that give back a one-hot encoded vector of all valid moves of the action space
+        :param board: The state representation
+        :param player: The player that will take the actions
+        :return: One-hot encoded vector of all valid moves of the action space
+        """
         # return a fixed size binary vector
         valids = [0] * self.getActionSize()
         b = Board(self.n)
@@ -104,57 +109,46 @@ class SantoriniGame(Game):
 
         return np.array(valids)
 
-    @staticmethod
-    def getValidMoves_any_board(board, player):
-        # TODO Board size
-        # return a fixed size binary vector
-        valids = [0] * SantoriniGame.getActionSize_any_board(5)
-        b = Board(5)
-        b.pieces = np.copy(board)
-        legalMoves = b.get_legal_moves_builds(player)
-
-        if len(legalMoves) == 0:
-            return np.array(valids)
-
-        for move, build in legalMoves:
-            x_move, y_move = move
-            x_build, y_build = build
-            valids[(5 ** 3) * x_move + (5 ** 2) * y_move + (5) * x_build + y_build] = 1
-
-        return np.array(valids)
-
     def getGameEnded(self, board, player):
         """
-        This method outputs if within a current state of the board if the game is finished and a player as won or
-        not.
-        :param board: np array representation of the board
-        :param player: -1 or 1 to represent a player
-        :return: int -1 or 1 or 0 depending if the game is finished or not
+        Function to get if the player is winning or losing (or none)
+        :param board: The state representation
+        :param player: The player that is looking if he won or not
+        :return: 1 if the player has won, -1 if he lost, 0 if the game is still pending.
         """
         b = Board(self.n)
         b.pieces = np.copy(board)
 
-        # Check to see if the player playing is at the top or not of a building
         outcome_p1 = np.where(b.pieces == player * 31)
         if outcome_p1[0].size > 0:
-            return player
+            return 1
+        outcome_p1 = np.where(b.pieces == -player * 31)
+        if outcome_p1[0].size > 0:
+            return -1
 
-        # Check to see if the other player can play or not
         if not b.has_legal_moves_builds(-player):
-            return player
+            return 1
+        if not b.has_legal_moves_builds(player):
+            return -1
 
         return 0
 
     def getCanonicalForm(self, board, player):
-        # TODO: Really necessary?
-        # return state if player==1, else return -state if player==-1
+        """
+        Function to switch the board from player's point of view. For instance, if player -1 is playing, he should see
+        the board with his pawn as being flagged as 1 (not -1).
+        :param board: The current state representation
+        :param player: The player that is playing (1, -1)
+        :return: The board switch from the player's point of view
+        """
         assert isinstance(board, np.ndarray)
-        output = board  # player * board
+        output = player * board
         for row in range(output.shape[0]):
             for col in range(output.shape[1]):
                 if output[row][col] in [-10, -20, -30, -40]:
                     output[row][col] = output[row][col] * -1
         return output
+
 
     # TODO: Major work here
     def getSymmetries(self, board, pi):
@@ -175,9 +169,19 @@ class SantoriniGame(Game):
         # return l
 
     def stringRepresentation(self, board):
+        """
+        Convert board to string representation for MCTS
+        :param board: The state representation
+        :return: The state representation in string format
+        """
         return board.tostring()
 
     def stringRepresentationReadable(self, board):
+        """
+        Similar function as above
+        :param board: The state representation
+        :return: The state representation in string format
+        """
         board_s = "".join(self.square_content[square] for row in board for square in row)
         return board_s
 
@@ -200,9 +204,14 @@ class SantoriniGame(Game):
 
         print("------------------------")
 
+def board_checker(board):
+    for i in range(board.shape[0]):
+        for j in range(board.shape[0]):
+            list_of_moves = list(SantoriniGame.square_content.keys())
+            if board[i][j] not in list_of_moves:
+                return False
+    return True
 
-# TODO: Move the below, since cannot be called and only a workaround of
-# TODO: not a good canonicalboard representation
 def getNNForm(board):
     assert isinstance(board, np.ndarray), 'Only accepts numpy array representation'
     board_level_map = {key: idx for idx, key in enumerate(SantoriniGame.square_content.keys())}
@@ -216,3 +225,4 @@ def getNNForm(board):
                 board_i = board_level_map[square]
             nn_board[board_i, row, col] = 1.0
     return nn_board
+

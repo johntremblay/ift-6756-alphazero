@@ -18,10 +18,8 @@ human_vs_cpu = True
 g = SantoriniGame(5)
 
 # all players
-rp1 = RandomPlayer(g, 1).play
-rp2 = RandomPlayer(g, -1).play
-hp1 = HumanSantoriniPlayer(g, 1).play
-hp2 = HumanSantoriniPlayer(g, -1).play
+rp = RandomPlayer(g).play
+hp = HumanSantoriniPlayer(g).play
 
 # # nnet players
 # n1 = NNet(g)
@@ -41,6 +39,7 @@ hp2 = HumanSantoriniPlayer(g, -1).play
 #
 #     player2 = n2p  # Player 2 is neural network if it's cpu vs cpu.
 
-arena = Arena.Arena(hp1, hp2, g, display=SantoriniGame.display)
+# arena = Arena.Arena(rp, rp, g, display=SantoriniGame.display)
+arena = Arena.Arena(rp, rp, g, display=SantoriniGame.display)
 
-print(arena.playGames(1, verbose=True))
+print(arena.playGames(1000, verbose=True))
