@@ -16,9 +16,9 @@ if not __COLAB:
         'lr': 0.001,
         'dropout': 0.1,
         'epochs': 10,
-        'batch_size': 16,
+        'batch_size': 32,
         'cuda': torch.cuda.is_available(),
-        'num_channels': 16,
+        'num_channels': 32,
     })
 else:
     args = dotdict({

@@ -177,7 +177,6 @@ class Board():
         level = np.sum(self.pieces[:-1], axis=0)[x_build][y_build].astype(int)
         self.pieces[level][x_build][y_build] = 1
 
-    #TODO: FIX THIS
     def read_action(self, action, color):
         """
         Function to return the mapping of the action number to actual move and build action that is readable by us.

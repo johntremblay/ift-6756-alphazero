@@ -1,6 +1,6 @@
 # TODO: Could possibly let the player decide where to initiate its pawn
-# TODO: Change action space to be only the moves and not the cases -> Possibly 8**2 for move direction and build
-# TODO: Changes the state representation to be 5x5x4 (board) and 5x5x1 (players)
+# TODO: Change action space to be only the moves and not the cases -> Possibly 8**2 for move direction and build - DONE
+# TODO: Changes the state representation to be 5x5x4 (board) and 5x5x1 (players) - DONE
 # TODO: Add 2 other players to the game
 
 # TODO AS OF MARCH 20:

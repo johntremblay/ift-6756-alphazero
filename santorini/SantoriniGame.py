@@ -119,7 +119,6 @@ class SantoriniGame(Game):
         b.pieces[-1] = player * b.pieces[-1]
         return b.pieces
 
-
     # TODO: Major work here
     def getSymmetries(self, board, pi):
         # mirror, rotational

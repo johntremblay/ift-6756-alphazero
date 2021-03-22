@@ -42,4 +42,4 @@ hp = HumanSantoriniPlayer(g).play
 # arena = Arena.Arena(rp, rp, g, display=SantoriniGame.display)
 arena = Arena.Arena(rp, rp, g, display=SantoriniGame.display)
 
-print(arena.playGames(10, verbose=True))
+print(arena.playGames(2, verbose=True))
