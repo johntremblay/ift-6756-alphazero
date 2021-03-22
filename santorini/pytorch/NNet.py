@@ -91,6 +91,7 @@ class NNetWrapper(NeuralNet):
                 batch_time.update(time.time() - end)
                 end = time.time()
                 batch_idx += 1
+            print(total_loss)
 
                 # plot progress
             #     bar.suffix = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss_pi: {lpi:.4f} | Loss_v: {lv:.3f}'.format(
