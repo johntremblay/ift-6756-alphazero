@@ -36,7 +36,6 @@ class SantoriniGame(Game):
         """
         return 8 * 8
 
-    #TODO: FIX DEPENDING ON READ_ACTION
     def getNextState(self, board, player, action):
         """
         Function to get the next board from an action that was performed by the current player.
@@ -53,7 +52,6 @@ class SantoriniGame(Game):
 
         return (b.pieces, -player)
 
-    #TODO: VALID HERE
     def getValidMoves(self, board, player):
         """
         Function that give back a one-hot encoded vector of all valid moves of the action space
@@ -149,6 +147,11 @@ class SantoriniGame(Game):
 
     @staticmethod
     def display(board):
+        """
+        Method to generate the readable board of the game
+        :param board: the non-readable board of the game
+        :return: readable board of the game
+        """
         n_board = board.shape[1]
         print("    ", end="")
         for y in range(n_board):

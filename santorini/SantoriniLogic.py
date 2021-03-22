@@ -3,7 +3,6 @@ Author: Francois Milot & Jonathan Tremblay
 Date: March 1, 2021.
 '''
 
-from math import copysign
 import numpy as np
 import itertools
 
@@ -28,8 +27,10 @@ class Board():
         self.pieces[-1][0][0] = -1
 
     def get_legal_moves_builds(self, color):
-        """Returns all the legal moves for the given color.
-        (1 for white, -1 for black)
+        """
+        Function that will return the possible moves of the current player (color)
+        :param color: -1 or 1 of the current player
+        :return: moves (absolute location), moves (relative location)
         """
         new_moves_builds = set()
         new_moves_builds_direction = set()
@@ -43,6 +44,11 @@ class Board():
         return list(new_moves_builds), list(new_moves_builds_direction)
 
     def has_legal_moves_builds(self, color):
+        """
+        Similar as get_legal_moves_build but it is to see if any moves are still possible.
+        :param color: -1 or 1 of the current player
+        :return: True if still plays, False if not
+        """
         for y in range(self.n_board):
             for x in range(self.n_board):
                 if self.pieces[-1][x][y] == color:
@@ -53,6 +59,10 @@ class Board():
 
     def get_moves_for_square(self, square):
         """
+        Given a square, we need to see what are the possible moves and build from that square.
+        Note that the build are from the new location and not current location.
+        :param square: The current location of the player
+        :return: moves (absolute location), moves (relative location)
         """
         # search all possible directions.
         x_orig, y_orig = square
@@ -74,8 +84,14 @@ class Board():
         return moves_builds, moves_builds_direction
 
     def _discover_move(self, origin, direction, color):
-        """ Returns the endpoint for a legal move, starting at the given origin,
-        moving by the given increment."""
+        """
+        Returns the endpoint for a legal move, starting at the given origin,
+        moving by the given increment.
+        :param origin: current location of the player (color)
+        :param direction: where it is heading
+        :param color: current player (1 or -1)
+        :return: the move if it is a legal move
+        """
 
         x_orig, y_orig = origin
         x_dir, y_dir = direction
@@ -87,6 +103,14 @@ class Board():
         return None
 
     def _is_legal_move(self, origin, direction, color):
+        """
+        Function to see if a move is legal or not (can't move on opponent space, can't move on a capped building,
+        can't jump more than 1 floors)
+        :param origin: current location of the player (color)
+        :param direction: where it is heading
+        :param color: current player (1 or -1)
+        :return: True if the move is legal, False if not.
+        """
         x_orig, y_orig = origin
         x_dir, y_dir = direction
         x_sum, y_sum = x_orig + x_dir, y_orig + y_dir
@@ -99,6 +123,14 @@ class Board():
         return False
 
     def _discover_build(self, origin, direction, color):
+        """
+        Returns the endpoint for a legal build, starting at the given origin,
+        moving by the given increment.
+        :param origin: current location of the player (color)
+        :param direction: where it is heading
+        :param color: current player (1 or -1)
+        :return: the build if it is a legal move
+        """
         x_orig, y_orig = origin
         x_dir, y_dir = direction
         x_sum, y_sum = x_orig + x_dir, y_orig + y_dir
@@ -109,6 +141,13 @@ class Board():
         return None
 
     def _is_legal_build(self, origin, direction, color):
+        """
+        Function to see if a build is legal or not (can't build on opponent space, can't build on a capped building)
+        :param origin: current location of the player (color)
+        :param direction: where it is building
+        :param color: current player (1 or -1)
+        :return: True if the move is legal, False if not.
+        """
         x_orig, y_orig = origin
         x_dir, y_dir = direction
         x_sum, y_sum = x_orig + x_dir, y_orig + y_dir
@@ -120,6 +159,14 @@ class Board():
         return False
 
     def execute_move_build(self, move, build, color):
+        """
+        Function to execute the move and build. This will remove the previous location of the player, move the player,
+        build on a new space.
+        :param move: absolute location of the move
+        :param build: absolute location of build
+        :param color: current player (1 or -1)
+        :return: The board is updated with the new move and build.
+        """
         # Move
         x_move, y_move = move
         self._remove_color(color)
@@ -134,9 +181,9 @@ class Board():
     def read_action(self, action, color):
         """
         Function to return the mapping of the action number to actual move and build action that is readable by us.
-        :param n: The board dimension
-        :param action: The raw action in numeric
-        :return: move (format (x, y)), build (format (z, w))
+        :param action: number that is raw and not readable.
+        :param color: current player (1 or -1)
+        :return: move(format(x, y)), build(format(z, w))
         """
 
         for x in range(self.n_board):
@@ -152,6 +199,11 @@ class Board():
         return move, build
 
     def _remove_color(self, color):
+        """
+        Function to erase the previous location of the current player.
+        :param color: current player (1 or -1)
+        :return: will update the board with erasing the previous location of player.
+        """
         for y in range(self.n_board):
             for x in range(self.n_board):
                 if self.pieces[-1][x][y] == color:
