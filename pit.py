@@ -42,4 +42,4 @@ n1p = lambda x: np.argmax(mcts1.getActionProb(x, temp=0))
 # arena = Arena.Arena(rp, rp, g, display=SantoriniGame.display)
 arena = Arena.Arena(n1p, rp, g, display=SantoriniGame.display)
 
-print(arena.playGames(100, verbose=True))
+print(arena.playGames(100, verbose=False))
