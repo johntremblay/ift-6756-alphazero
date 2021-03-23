@@ -41,7 +41,7 @@ else:
         'arenaCompare': 10,         # Number of games to play during arena play to determine if new net will be accepted.
         'cpuct': 1,
 
-        'checkpoint': './temp/second/',
+        'checkpoint': './temp/',
         'load_model': True,
         'load_folder_file': ('./temp/','best.pth.tar'),
         'numItersForTrainExamplesHistory': 20,
