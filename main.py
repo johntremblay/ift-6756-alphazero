@@ -43,7 +43,7 @@ else:
 
         'checkpoint': './temp/',
         'load_model': True,
-        'load_folder_file': ('./temp/','checkpoint_25.pth.tar'),
+        'load_folder_file': ('./temp/','best.pth.tar'),
         'numItersForTrainExamplesHistory': 20,
 
     })
