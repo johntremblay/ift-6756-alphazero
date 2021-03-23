@@ -24,10 +24,10 @@ else:
     args = dotdict({
         'lr': 0.001,
         'dropout': 0.1,
-        'epochs': 15,
+        'epochs': 25,
         'batch_size': 256,
         'cuda': torch.cuda.is_available(),
-        'num_channels': 256,
+        'num_channels': 512,
     })
 
 
