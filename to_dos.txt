@@ -1,7 +1,7 @@
 # TODO AS OF MARCH 28:
 - Benchmark comparison between models: Win rate over random players (100 games) after 3 update of the new model + 1000 game after 15 update (JT)
 - NN network training progression (plotting, loss metric, etc.). (JT)
-- Saving of model configurations (NN and alpha zero), GPU, game played, time of training, etc.
+- Saving of model configurations (NN and alpha zero), GPU, game played, time of training, etc. (JT)
 - Baseline fine-tuning: try different HP and NN architecture, try different alpha zero parameters (# MCTS,
 # batch size, etc.). If we could store some runs to compare with a baseline, it would be perfect. Like: NN changes
 increases win rate by 2%, Alpha zero changes increases win rate by 3% (total tuning results of 5%)
