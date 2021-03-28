@@ -154,7 +154,7 @@ class Coach():
                 self.nb_model_improv += 1
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')
-                if self.nb_model_improv % 1 == 0:
+                if self.nb_model_improv % self.args.nb_of_new_model_for_random_player == 0:
                     game_simul = SantoriniGame(5, 4)
                     rp = RandomPlayer(game_simul).play
                     n_simul = NNet(game_simul, self.nn_args)
@@ -162,7 +162,7 @@ class Coach():
                     mcts_simul = MCTS(game_simul, n_simul, self.args)
                     n1_simul = lambda x: np.argmax(mcts_simul.getActionProb(x, temp=0))
                     arena_simul = Arena(n1_simul, rp, game_simul, display=False)
-                    nnwins, _, _ = arena_simul.playGames(10, verbose=False)
+                    nnwins, _, _ = arena_simul.playGames(self.args.nb_of_game_agaisnt_random_player, verbose=False)
                     self.df_stats = self.log_to_file(
                         file=self.log_file,
                         args=self.args,
@@ -172,6 +172,7 @@ class Coach():
                         nwins=nwins,
                         df_stats=self.df_stats,
                         nb_model_improv=self.nb_model_improv,
+                        nb_game_rdm=self.args.nb_of_game_agaisnt_random_player,
                         nnwins=nnwins,
                         only_random=True)
         self.df_stats.to_feather(os.path.join(self.args.log_file_location, f"{self.args.log_run_name}.feather"))
@@ -206,7 +207,7 @@ class Coach():
             self.skipFirstSelfPlay = True
 
     @staticmethod
-    def log_to_file(file, args, it, trainExamples, time_begin_iter, nwins, df_stats, nb_model_improv, nnwins=0, only_random=False):
+    def log_to_file(file, args, it, trainExamples, time_begin_iter, nwins, df_stats, nb_model_improv, nb_game_rdm=100, nnwins=0, only_random=False):
         if not only_random:
             with open(file, 'a') as fp:
                 fp.write(f"\n ### Iteration: {it}: \n")
@@ -226,5 +227,5 @@ class Coach():
                     f"## Testing new NN vs random player (100 games):\nNew NN iteration number: {nb_model_improv}\nWinning rate versus random: {round(nnwins / 100, 2)}\n")
                 fp.close()
                 df_stats.iloc[it, 5] = nb_model_improv
-                df_stats.iloc[it, 6] = round(nnwins / 10, 2)
+                df_stats.iloc[it, 6] = round(nnwins / nb_game_rdm, 2)
                 return df_stats

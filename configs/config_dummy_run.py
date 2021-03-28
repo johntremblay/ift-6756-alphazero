@@ -15,6 +15,8 @@ config_main = dotdict({
     'numMCTSSims': 3,  # Number of games moves for MCTS to simulate.
     'arenaCompare': 2,  # Number of games to play during arena play to determine if new net will be accepted.
     'cpuct': 1,
+    'nb_of_new_model_for_random_player': 5,
+    'nb_of_game_agaisnt_random_player': 100,
 
     'checkpoint': './temp/',
     'load_model': False,
