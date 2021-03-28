@@ -1,14 +1,17 @@
-# TODO: Could possibly let the player decide where to initiate its pawn
-# TODO: Change action space to be only the moves and not the cases -> Possibly 8**2 for move direction and build - DONE
-# TODO: Changes the state representation to be 5x5x4 (board) and 5x5x1 (players) - DONE
-# TODO: Add 2 other players to the game
+# TODO AS OF MARCH 28:
+- Benchmark comparaison between models: Win rate over random players (1000 games)? Do we want to evaluate this only at
+the end of training or 2-3 iterations during the process to see if one might learn faster than another?
+- NN network training progression (plotting, loss metric, etc.).
+- Saving of model configurations (NN and alpha zero), GPU, game played, time of training, etc.
+- Baseline fine-tuning: try different HP and NN architecture, try different alpha zero parameters (# MCTS,
+# batch size, etc.). If we could store some runs to compare with a baseline, it would be perfect. Like: NN changes
+increases win rate by 2%, Alpha zero changes increases win rate by 3% (total tuning results of 5%)
+- State representation changes: We could add features to the state representation in a similar way that we did with
+getNNForm. This will add layers to the 3d representation. Very explanatory results here.
+- Multiple action coding: This needs to adjust the whole code structure so that the loss gets backpropagate through
+multiple networks and that MCTS gets called between different action.
+- Multiple action fine-tuning: Similar to the tuning of the baseline, we can adjust the different parameters and state
+representation.
+- Player placement at the begining of the game
+- Add 2 pawns players to the game
 
-# TODO AS OF MARCH 20:
-- Pit to fix (FM) - done
-- Player to fix (ordre) (FM) - done
-- Logic to check (9 in arena sometimes) (FM)
-- SOmeone wins even though it was supposed to be the other (SantoriniGame) (FM) - done
-- Fix arena (qui qui recoit le nouveau Net et qui qui gagne) (JT)
-- COnfirm if action space is ok -> Maybe linked to invalid moves (JT)
-- Validate training by going in Pit if it beats random player (JT)
-- CLean-up code (FM + JT)
