@@ -13,6 +13,7 @@ Configuration minimal for now below
 from configs.config_85pct_baseline import config_main as args
 from configs.config_85pct_baseline import config_nn as nn_args
 
+
 def main():
     log.info('Loading %s...', Game.__name__)
     g = Game(5, 4)
