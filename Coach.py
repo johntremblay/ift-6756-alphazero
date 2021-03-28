@@ -4,6 +4,10 @@ import sys
 from collections import deque
 from pickle import Pickler, Unpickler
 from random import shuffle
+from utils import dotdict
+from santorini.SantoriniPlayers import *
+from santorini.SantoriniGame import SantoriniGame
+from santorini.pytorch.NNet import NNetWrapper as NNet
 
 import numpy as np
 from tqdm import tqdm
@@ -28,6 +32,9 @@ class Coach():
         self.mcts = MCTS(self.game, self.nnet, self.args)
         self.trainExamplesHistory = []  # history of examples from args.numItersForTrainExamplesHistory latest iterations
         self.skipFirstSelfPlay = False  # can be overriden in loadTrainExamples()
+        self.log_file = os.path.join(args.log_file_location, args.log_file_name)
+        self.nb_model_improv = 0
+        self.nn_args = nn_args
 
     def executeEpisode(self):
         """
@@ -77,6 +84,9 @@ class Coach():
         """
 
         for i in range(1, self.args.numIters + 1):
+            with open(self.log_file, 'a') as fp:
+                fp.write(f"\n ### Iteration: {i}: \n")
+                fp.close()
             # bookkeeping
             log.info(f'Starting Iter #{i} ...')
             # examples of the iteration
@@ -103,7 +113,9 @@ class Coach():
             for e in self.trainExamplesHistory:
                 trainExamples.extend(e)
             shuffle(trainExamples)
-
+            with open(self.log_file, 'a') as fp:
+                fp.write(f"Number of self-play games: {self.args.numEps}\nNumber of training examples: {len(trainExamples)}\n")
+                fp.close()
             # training new network, keeping a copy of the old one
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
             self.pnet.load_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
@@ -116,15 +128,32 @@ class Coach():
             arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
                           lambda x: np.argmax(nmcts.getActionProb(x, temp=0)), self.game)
             pwins, nwins, draws = arena.playGames(self.args.arenaCompare)
-
+            with open(self.log_file, 'a') as fp:
+                fp.write(f"Arena games: {self.args.arenaCompare} \nPct of game won for new NN: {round(nwins/self.args.arenaCompare,2)}\n")
+                fp.close()
             log.info('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
             if pwins + nwins == 0 or float(nwins) / (pwins + nwins) < self.args.updateThreshold:
                 log.info('REJECTING NEW MODEL')
                 self.nnet.load_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
             else:
                 log.info('ACCEPTING NEW MODEL')
+                self.nb_model_improv += 1
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')
+                if self.nb_model_improv % 1 == 5:
+                    game_simul = SantoriniGame(5, 4)
+                    rp = RandomPlayer(game_simul).play
+                    n_simul = NNet(game_simul, self.nn_args)
+                    n_simul.load_checkpoint('./temp/', 'best.pth.tar')
+                    mcts_simul = MCTS(game_simul, n_simul, self.args)
+                    n1_simul = lambda x: np.argmax(mcts_simul.getActionProb(x, temp=0))
+                    arena_simul = Arena(n1_simul, rp, game_simul, display=False)
+                    nnwins, _, _ = arena_simul.playGames(100, verbose=False)
+                    with open(self.log_file, 'a') as fp:
+                        fp.write(
+                            f"## Testing new NN vs random player (100 games):\nNew NN iteration number: {self.nb_model_improv}\nWinning rate versus random: {round(nnwins / 100, 2)}\n")
+                        fp.close()
+
 
     def getCheckpointFile(self, iteration):
         return 'checkpoint_' + str(iteration) + '.pth.tar'
