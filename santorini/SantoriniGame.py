@@ -161,12 +161,13 @@ class SantoriniGame(Game):
             print(x, "|", end="")  # print the row #
             for y in range(n_board):
                 piece = board[-1][x][y]  # get the piece to print
+                floor = np.sum(board[:-1], axis=0)[x][y] if np.sum(board[:-1], axis=0)[x][y] > 0 else " "
                 if piece == 0:
-                    print(np.sum(board[:-1], axis=0)[x][y], "-", end="  ")
+                    print(floor, "-", end="  ")
                 elif piece == -1:
-                    print(np.sum(board[:-1], axis=0)[x][y], "O", end="  ")
+                    print(floor, "O", end="  ")
                 else:
-                    print(np.sum(board[:-1], axis=0)[x][y], "X", end="  ")
+                    print(floor, "X", end="  ")
             print("|")
 
         print("-----------------------------")
