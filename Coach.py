@@ -5,9 +5,11 @@ from collections import deque
 from pickle import Pickler, Unpickler
 from random import shuffle
 from utils import dotdict
+import pandas as pd
 from santorini.SantoriniPlayers import *
 from santorini.SantoriniGame import SantoriniGame
 from santorini.pytorch.NNet import NNetWrapper as NNet
+import time
 
 import numpy as np
 from tqdm import tqdm
@@ -35,6 +37,16 @@ class Coach():
         self.log_file = os.path.join(args.log_file_location, args.log_file_name)
         self.nb_model_improv = 0
         self.nn_args = nn_args
+        iters = self.args.numIters + 1
+        rows_to_add = [0] * iters
+        self.df_stats = pd.DataFrame({
+            'iteration': [j for j in range(0, iters)],
+            'nb_training_examples': rows_to_add,
+            'avg_self_play_time_pr_game': rows_to_add,
+            'arena_games': rows_to_add,
+            'pct_games_won': rows_to_add,
+            'new_nn_iteration_nb': rows_to_add,
+            'winning_rate_vs_random': rows_to_add})
 
     def executeEpisode(self):
         """
@@ -84,6 +96,7 @@ class Coach():
         """
 
         for i in range(1, self.args.numIters + 1):
+            time_begin_iter = time.time()
             with open(self.log_file, 'a') as fp:
                 fp.write(f"\n ### Iteration: {i}: \n")
                 fp.close()
@@ -114,8 +127,10 @@ class Coach():
                 trainExamples.extend(e)
             shuffle(trainExamples)
             with open(self.log_file, 'a') as fp:
-                fp.write(f"Number of self-play games: {self.args.numEps}\nNumber of training examples: {len(trainExamples)}\n")
+                fp.write(f"Number of self-play games: {self.args.numEps}\nNumber of training examples: {len(trainExamples)}\nAvg seconds by game:{round((time.time() - time_begin_iter)/self.args.numEps, 0)}\n")
                 fp.close()
+            self.df_stats.iloc[i, 1] = len(trainExamples)
+            self.df_stats.iloc[i, 2] = round((time.time() - time_begin_iter)/self.args.numEps, 0)
             # training new network, keeping a copy of the old one
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
             self.pnet.load_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
@@ -131,6 +146,8 @@ class Coach():
             with open(self.log_file, 'a') as fp:
                 fp.write(f"Arena games: {self.args.arenaCompare} \nPct of game won for new NN: {round(nwins/self.args.arenaCompare,2)}\n")
                 fp.close()
+            self.df_stats.iloc[i, 3] = self.args.arenaCompare
+            self.df_stats.iloc[i, 4] = round(nwins/self.args.arenaCompare,2)
             log.info('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
             if pwins + nwins == 0 or float(nwins) / (pwins + nwins) < self.args.updateThreshold:
                 log.info('REJECTING NEW MODEL')
@@ -140,7 +157,7 @@ class Coach():
                 self.nb_model_improv += 1
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')
-                if self.nb_model_improv % 1 == 5:
+                if self.nb_model_improv % 2 == 0:
                     game_simul = SantoriniGame(5, 4)
                     rp = RandomPlayer(game_simul).play
                     n_simul = NNet(game_simul, self.nn_args)
@@ -148,12 +165,14 @@ class Coach():
                     mcts_simul = MCTS(game_simul, n_simul, self.args)
                     n1_simul = lambda x: np.argmax(mcts_simul.getActionProb(x, temp=0))
                     arena_simul = Arena(n1_simul, rp, game_simul, display=False)
-                    nnwins, _, _ = arena_simul.playGames(100, verbose=False)
+                    nnwins, _, _ = arena_simul.playGames(10, verbose=False)
                     with open(self.log_file, 'a') as fp:
                         fp.write(
                             f"## Testing new NN vs random player (100 games):\nNew NN iteration number: {self.nb_model_improv}\nWinning rate versus random: {round(nnwins / 100, 2)}\n")
                         fp.close()
-
+                    self.df_stats.iloc[i, 5] = self.nb_model_improv
+                    self.df_stats.iloc[i, 6] = round(nnwins / 10, 2)
+        self.df_stats.to_feather(os.path.join(self.args.log_file_location, f"{self.args.log_run_name}.feather"))
 
     def getCheckpointFile(self, iteration):
         return 'checkpoint_' + str(iteration) + '.pth.tar'
