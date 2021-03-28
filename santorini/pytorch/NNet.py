@@ -9,25 +9,25 @@ import torch
 import torch.optim as optim
 from .SantoriniNNet import SantoriniNNet as onnet
 
-__COLAB = True
+__COLAB = False
 
 if not __COLAB:
     args = dotdict({
         'lr': 0.001,
         'dropout': 0.1,
-        'epochs': 10,
-        'batch_size': 32,
+        'epochs': 2,
+        'batch_size': 4,
         'cuda': torch.cuda.is_available(),
-        'num_channels': 32,
+        'num_channels': 4,
     })
 else:
     args = dotdict({
         'lr': 0.001,
         'dropout': 0.1,
-        'epochs': 15,
+        'epochs': 25,
         'batch_size': 256,
         'cuda': torch.cuda.is_available(),
-        'num_channels': 256,
+        'num_channels': 512,
     })
 
 
