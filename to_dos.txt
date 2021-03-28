@@ -1,5 +1,5 @@
 # TODO AS OF MARCH 28:
-- Benchmark comparison between models: Win rate over random players (100 games) after 3 update of the new model + 1000 game after 15 update
+- Benchmark comparison between models: Win rate over random players (100 games) after 3 update of the new model + 1000 game after 15 update (JT)
 - NN network training progression (plotting, loss metric, etc.).
 - Saving of model configurations (NN and alpha zero), GPU, game played, time of training, etc.
 - Baseline fine-tuning: try different HP and NN architecture, try different alpha zero parameters (# MCTS,
