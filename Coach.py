@@ -150,7 +150,8 @@ class Coach():
                 trainExamples=trainExamples,
                 time_begin_iter=time_begin_iter,
                 nwins=nwins,
-                df_stats=self.df_stats)
+                df_stats=self.df_stats,
+                nb_model_improv=self.nb_model_improv)
             # with open(self.log_file, 'a') as fp:
             #     fp.write(f"\n ### Iteration: {i}: \n")
             #     fp.write(
@@ -170,7 +171,7 @@ class Coach():
                 self.nb_model_improv += 1
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')
-                if self.nb_model_improv % 2 == 0:
+                if self.nb_model_improv % 1 == 0:
                     game_simul = SantoriniGame(5, 4)
                     rp = RandomPlayer(game_simul).play
                     n_simul = NNet(game_simul, self.nn_args)
@@ -179,12 +180,23 @@ class Coach():
                     n1_simul = lambda x: np.argmax(mcts_simul.getActionProb(x, temp=0))
                     arena_simul = Arena(n1_simul, rp, game_simul, display=False)
                     nnwins, _, _ = arena_simul.playGames(10, verbose=False)
-                    with open(self.log_file, 'a') as fp:
-                        fp.write(
-                            f"## Testing new NN vs random player (100 games):\nNew NN iteration number: {self.nb_model_improv}\nWinning rate versus random: {round(nnwins / 100, 2)}\n")
-                        fp.close()
-                    self.df_stats.iloc[i, 5] = self.nb_model_improv
-                    self.df_stats.iloc[i, 6] = round(nnwins / 10, 2)
+                    self.df_stats = self.log_to_file(
+                        file=self.log_file,
+                        args=self.args,
+                        it=i,
+                        trainExamples=trainExamples,
+                        time_begin_iter=time_begin_iter,
+                        nwins=nwins,
+                        df_stats=self.df_stats,
+                        nb_model_improv=self.nb_model_improv,
+                        nnwins=nnwins,
+                        only_random=True)
+                    # with open(self.log_file, 'a') as fp:
+                    #     fp.write(
+                    #         f"## Testing new NN vs random player (100 games):\nNew NN iteration number: {self.nb_model_improv}\nWinning rate versus random: {round(nnwins / 100, 2)}\n")
+                    #     fp.close()
+                    # self.df_stats.iloc[i, 5] = self.nb_model_improv
+                    # self.df_stats.iloc[i, 6] = round(nnwins / 10, 2)
         self.df_stats.to_feather(os.path.join(self.args.log_file_location, f"{self.args.log_run_name}.feather"))
 
     def getCheckpointFile(self, iteration):
@@ -217,16 +229,25 @@ class Coach():
             self.skipFirstSelfPlay = True
 
     @staticmethod
-    def log_to_file(file, args, it, trainExamples, time_begin_iter, nwins, df_stats):
-        with open(file, 'a') as fp:
-            fp.write(f"\n ### Iteration: {it}: \n")
-            fp.write(
-                f"Number of self-play games: {args.numEps}\nNumber of training examples: {len(trainExamples)}\nAvg seconds by game:{round((time.time() - time_begin_iter) / args.numEps, 0)}\n")
-            fp.write(
-                f"Arena games: {args.arenaCompare} \nPct of game won for new NN: {round(nwins / args.arenaCompare, 2)}\n")
-            fp.close()
-        df_stats.iloc[it, 1] = len(trainExamples)
-        df_stats.iloc[it, 2] = round((time.time() - time_begin_iter) / args.numEps, 0)
-        df_stats.iloc[it, 3] = args.arenaCompare
-        df_stats.iloc[it, 4] = round(nwins / args.arenaCompare, 2)
-        return df_stats
+    def log_to_file(file, args, it, trainExamples, time_begin_iter, nwins, df_stats, nb_model_improv, nnwins=0, only_random=False):
+        if not only_random:
+            with open(file, 'a') as fp:
+                fp.write(f"\n ### Iteration: {it}: \n")
+                fp.write(
+                    f"Number of self-play games: {args.numEps}\nNumber of training examples: {len(trainExamples)}\nAvg seconds by game:{round((time.time() - time_begin_iter) / args.numEps, 0)}\n")
+                fp.write(
+                    f"Arena games: {args.arenaCompare} \nPct of game won for new NN: {round(nwins / args.arenaCompare, 2)}\n")
+                fp.close()
+            df_stats.iloc[it, 1] = len(trainExamples)
+            df_stats.iloc[it, 2] = round((time.time() - time_begin_iter) / args.numEps, 0)
+            df_stats.iloc[it, 3] = args.arenaCompare
+            df_stats.iloc[it, 4] = round(nwins / args.arenaCompare, 2)
+            return df_stats
+        else:
+            with open(file, 'a') as fp:
+                fp.write(
+                    f"## Testing new NN vs random player (100 games):\nNew NN iteration number: {nb_model_improv}\nWinning rate versus random: {round(nnwins / 100, 2)}\n")
+                fp.close()
+                df_stats.iloc[it, 5] = nb_model_improv
+                df_stats.iloc[it, 6] = round(nnwins / 10, 2)
+                return df_stats
