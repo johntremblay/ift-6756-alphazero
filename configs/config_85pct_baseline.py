@@ -3,6 +3,7 @@
 """
 from utils import dotdict
 import torch
+import os
 
 config_main = dotdict({
     'numIters': 25,
@@ -14,12 +15,18 @@ config_main = dotdict({
     'numMCTSSims': 20,  # Number of games moves for MCTS to simulate.
     'arenaCompare': 10,  # Number of games to play during arena play to determine if new net will be accepted.
     'cpuct': 1,
+    'nb_of_new_model_for_random_player': 5,
+    'nb_of_game_agaisnt_random_player': 100,
 
     'checkpoint': './temp/',
     'load_model': False,
     'load_folder_file': ('./temp/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 
+    'create_log_file': True,
+    'log_file_location': f'/home/john/PycharmProjects/ift-6756-alphazero/logs/',
+    'log_file_name': f'{os.path.basename(__file__)}_log.txt',
+    'log_run_name': f'{os.path.basename(__file__)}'
 })
 config_nn = dotdict({
     'lr': 0.001,
