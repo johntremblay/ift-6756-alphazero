@@ -1,5 +1,5 @@
 # TODO AS OF MARCH 28:
-- Benchmark comparaison between models: Win rate over random players (1000 games)? Do we want to evaluate this only at
+- Benchmark comparison between models: Win rate over random players (100 games) after 3 update of the new model + 1000 game after 15 update
 the end of training or 2-3 iterations during the process to see if one might learn faster than another?
 - NN network training progression (plotting, loss metric, etc.).
 - Saving of model configurations (NN and alpha zero), GPU, game played, time of training, etc.
@@ -14,4 +14,3 @@ multiple networks and that MCTS gets called between different action.
 representation.
 - Player placement at the begining of the game
 - Add 2 pawns players to the game
-
