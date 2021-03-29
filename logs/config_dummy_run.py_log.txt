@@ -1,1 +1,36 @@
 Log file initiated for config_dummy_run.py 
+
+ ### Iteration: 1: 
+Number of self-play games: 3
+Number of training examples: 81
+Avg seconds by game:12.0
+Arena games: 2 
+Pct of game won for new NN: 1.0
+
+ ### Iteration: 2: 
+Number of self-play games: 3
+Number of training examples: 164
+Avg seconds by game:13.0
+Arena games: 2 
+Pct of game won for new NN: 1.0
+
+ ### Iteration: 3: 
+Number of self-play games: 3
+Number of training examples: 268
+Avg seconds by game:20.0
+Arena games: 2 
+Pct of game won for new NN: 0.0
+
+ ### Iteration: 4: 
+Number of self-play games: 3
+Number of training examples: 384
+Avg seconds by game:27.0
+Arena games: 2 
+Pct of game won for new NN: 0.5
+
+ ### Iteration: 5: 
+Number of self-play games: 3
+Number of training examples: 459
+Avg seconds by game:31.0
+Arena games: 2 
+Pct of game won for new NN: 0.5

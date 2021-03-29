@@ -14,7 +14,7 @@ class NNetWrapper(NeuralNet):
     def __init__(self, game, args):
         self.args = args
         self.nnet = onnet(game, args)
-        self.board_x, self.board_y, self.board_z = game.getBoardSize()
+        self.board_x, self.board_y, self.board_z = game.getBoardNNSize()
         self.action_size = game.getActionSize()
 
         if args.cuda:
