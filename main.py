@@ -1,59 +1,42 @@
 import logging
-
 import coloredlogs
-
 from Coach import Coach
+import os
 from santorini.SantoriniGame import SantoriniGame as Game
 from santorini.pytorch.NNet import NNetWrapper as nn
-from utils import *
 
 log = logging.getLogger(__name__)
-
 coloredlogs.install(level='INFO')  # Change this to DEBUG to see more info.
 
-__COLAB = False
+"""
+Configuration minimal for now below
+"""
+from configs.config_dummy_run import config_main as args
+from configs.config_dummy_run import config_nn as nn_args
 
-if not __COLAB:
-    args = dotdict({
-        'numIters': 25,
-        'numEps': 10,              # Number of complete self-play games to simulate during a new iteration.
-        'tempThreshold': 5,        #
-        'updateThreshold': 0.5,     # During arena playoff, new neural net will be accepted if threshold or more of games are won.
-        'maxlenOfQueue': 200000,    # Number of game examples to train the neural networks.
-        'numMCTSSims': 3,          # Number of games moves for MCTS to simulate.
-        'arenaCompare': 10,         # Number of games to play during arena play to determine if new net will be accepted.
-        'cpuct': 1,
-
-        'checkpoint': './temp/',
-        'load_model': False,
-        'load_folder_file': ('/temp/','best.pth.tar'),
-        'numItersForTrainExamplesHistory': 20,
-
-    })
-else:
-    args = dotdict({
-        'numIters': 25,
-        'numEps': 100,              # Number of complete self-play games to simulate during a new iteration.
-        'tempThreshold': 5,        #
-        'updateThreshold': 0.5,     # During arena playoff, new neural net will be accepted if threshold or more of games are won.
-        'maxlenOfQueue': 200000,    # Number of game examples to train the neural networks.
-        'numMCTSSims': 20,          # Number of games moves for MCTS to simulate.
-        'arenaCompare': 10,         # Number of games to play during arena play to determine if new net will be accepted.
-        'cpuct': 1,
-
-        'checkpoint': './temp/',
-        'load_model': True,
-        'load_folder_file': ('./temp/','best.pth.tar'),
-        'numItersForTrainExamplesHistory': 20,
-
-    })
 
 def main():
+
+    if args.create_log_file:
+        full_path = os.path.join(args.log_file_location, args.log_file_name)
+        if os.path.exists(full_path):
+            log.info(f'Log file {full_path} already exists')
+        else:
+            if os.path.exists(args.log_file_location):
+                with open(full_path, 'w') as fp:
+                    fp.write(f"Log file initiated for {args.log_run_name} \n")
+                    fp.close()
+            else:
+                os.mkdir(args.log_file_location)
+                with open(full_path, 'w') as fp:
+                    fp.write(f"Log file initiated for {args.log_run_name} \n")
+                    fp.close()
+
     log.info('Loading %s...', Game.__name__)
     g = Game(5, 4)
 
     log.info('Loading %s...', nn.__name__)
-    nnet = nn(g)
+    nnet = nn(g, args=nn_args)
 
     if args.load_model:
         log.info('Loading checkpoint "%s/%s"...', args.load_folder_file)
@@ -62,7 +45,7 @@ def main():
         log.warning('Not loading a checkpoint!')
 
     log.info('Loading the Coach...')
-    c = Coach(g, nnet, args)
+    c = Coach(g, nnet, args, nn_args)
 
     if args.load_model:
         log.info("Loading 'trainExamples' from file...")
