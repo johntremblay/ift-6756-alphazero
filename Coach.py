@@ -145,6 +145,7 @@ class Coach():
                 df_stats=self.df_stats,
                 nb_model_improv=self.nb_model_improv)
 
+            self.df_stats.to_feather(os.path.join(self.args.log_file_location, f"{self.args.log_run_name}.feather"))
             log.info('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
             if pwins + nwins == 0 or float(nwins) / (pwins + nwins) < self.args.updateThreshold:
                 log.info('REJECTING NEW MODEL')
@@ -175,7 +176,7 @@ class Coach():
                         nb_game_rdm=self.args.nb_of_game_agaisnt_random_player,
                         nnwins=nnwins,
                         only_random=True)
-        self.df_stats.to_feather(os.path.join(self.args.log_file_location, f"{self.args.log_run_name}.feather"))
+
 
     def getCheckpointFile(self, iteration):
         return 'checkpoint_' + str(iteration) + '.pth.tar'
