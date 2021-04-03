@@ -43,6 +43,20 @@ class SantoriniGame(Game):
         """
         return 8 * 8
 
+    def getMoveSize(self):
+        """
+        Function to get the move space dimension.
+        :return: moves (8)
+        """
+        return 8
+
+    def getBuildSize(self):
+        """
+        Function to get the build space dimension.
+        :return: builds (8)
+        """
+        return 8
+
     def getNextState(self, board, player, action):
         """
         Function to get the next board from an action that was performed by the current player.

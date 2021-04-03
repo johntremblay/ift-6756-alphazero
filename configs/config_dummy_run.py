@@ -34,7 +34,7 @@ config_nn = dotdict({
     'lr': 0.001,
     'dropout': 0.1,
     'epochs': 1,
-    'batch_size': 4,
+    'batch_size': 2,
     'cuda': torch.cuda.is_available(),
     'num_channels': 4,
 })
