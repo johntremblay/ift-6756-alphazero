@@ -17,6 +17,7 @@ class Board():
         # Initialize board dimension
         self.n_board = n_board
         self.n_tower = n_tower
+        self.all_move_build = self.get_all_action_move()
 
         # Create the empty board array.
         self.pieces = np.zeros(((self.n_tower + 1), self.n_board, self.n_board)).astype(int)
@@ -190,10 +191,10 @@ class Board():
                 if self.pieces[-1][x][y] == color:
                     x_orig, y_orig = x, y
 
-        (x_move_dir, y_move_dir), (x_build_dir, y_build_dir) = self.list_direction_move_build[action]
+        direction = [k for k, v in self.all_move_build.items() if v == action][0]
 
-        move = (x_orig + x_move_dir), (y_orig + y_move_dir)
-        build = (x_orig + x_move_dir + x_build_dir), (y_orig + y_move_dir + y_build_dir)
+        move = (int(direction[9]), int(direction[12]))
+        build = (int(direction[17]), int(direction[20]))
 
         return move, build
 
@@ -207,4 +208,46 @@ class Board():
             for x in range(self.n_board):
                 if self.pieces[-1][x][y] == color:
                     self.pieces[-1][x][y] = 0
+
+    @staticmethod
+    def get_all_action_move():
+        possible_row = possible_col = [-1, 0, 1]
+        move_id = {}
+        move_count = 0
+        board = np.zeros((5, 5))
+        for row in range(0, 5):
+            for col in range(0, 5):
+                loc = (row, col)
+                for i in possible_row:
+                    for j in possible_col:
+                        try:
+                            new_loc = (loc[0] + i, loc[1] + j)
+                            if new_loc[0] < 0 or new_loc[1] < 0:
+                                continue
+                            if new_loc[0] == loc[0] and new_loc[1] == loc[1]:
+                                continue
+                            try:
+                                a = board[new_loc[0], new_loc[1]]
+                            except:
+                                continue
+                            for y in possible_row:
+                                for x in possible_col:
+                                    try:
+                                        build = (new_loc[0] + y, new_loc[1] + x)
+                                        if build[0] < 0 or build[1] < 0:
+                                            continue
+                                        if build[0] == new_loc[0] and build[1] == new_loc[1]:
+                                            continue
+                                        try:
+                                            b = board[build[0], build[1]]
+                                        except:
+                                            continue
+                                        move_id[
+                                            f"[{row}, {col}]->[{new_loc[0]}, {new_loc[1]}]->[{build[0]}, {build[1]}]"]=move_count
+                                        move_count += 1
+                                    except:
+                                        continue
+                        except:
+                            continue
+        return move_id
 

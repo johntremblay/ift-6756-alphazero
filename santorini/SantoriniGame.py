@@ -13,6 +13,7 @@ class SantoriniGame(Game):
         super().__init__()
         self.n_board = n_board
         self.n_tower = n_tower
+        self.all_move_build = self.get_all_action_move()
 
     def getInitBoard(self):
         """
@@ -41,7 +42,7 @@ class SantoriniGame(Game):
         Function to get the action space dimension.
         :return: moves (8) x builds (8)
         """
-        return 8 * 8
+        return len(self.get_all_action_move())
 
     def getNextState(self, board, player, action):
         """
@@ -59,14 +60,15 @@ class SantoriniGame(Game):
 
         return (b.pieces, -player)
 
-    def getValidMoves(self, board, player):
+    def AAAAAAAAAAAAAAAAAAAA(self, board, player):
         """
         Function that give back a one-hot encoded vector of all valid moves of the action space
         :param board: The state representation
         :param player: The player that will take the actions
         :return: One-hot encoded vector of all valid moves of the action space
         """
-        valids = [0]*self.getActionSize()
+
+        valids = [0] * self.getActionSize()
 
         b = Board(self.n_board, self.n_tower)
         b.pieces = np.copy(board)
@@ -215,3 +217,58 @@ class SantoriniGame(Game):
                 if nn_output[11, i, j] == 1 and board[4, i, j] == -1:
                     nn_output[0, i, j] = 1  # Level 0 represents -1 and floor 3
         return nn_output
+
+    @staticmethod
+    def get_all_action_move():
+        possible_row = possible_col = [-1, 0, 1]
+        move_id = {}
+        move_count = 0
+        board = np.zeros((5, 5))
+        for row in range(0, 5):
+            for col in range(0, 5):
+                loc = (row, col)
+                for i in possible_row:
+                    for j in possible_col:
+                        try:
+                            new_loc = (loc[0] + i, loc[1] + j)
+                            if new_loc[0] < 0 or new_loc[1] < 0:
+                                continue
+                            if new_loc[0] == loc[0] and new_loc[1] == loc[1]:
+                                continue
+                            try:
+                                a = board[new_loc[0], new_loc[1]]
+                            except:
+                                continue
+                            for y in possible_row:
+                                for x in possible_col:
+                                    try:
+                                        build = (new_loc[0] + y, new_loc[1] + x)
+                                        if build[0] < 0 or build[1] < 0:
+                                            continue
+                                        if build[0] == new_loc[0] and build[1] == new_loc[1]:
+                                            continue
+                                        try:
+                                            b = board[build[0], build[1]]
+                                        except:
+                                            continue
+                                        move_id[
+                                            f"[{row}, {col}]->[{new_loc[0]}, {new_loc[1]}]->[{build[0]}, {build[1]}]"]=move_count
+                                        move_count += 1
+                                    except:
+                                        continue
+                        except:
+                            continue
+        return move_id
+
+    def getValidMoves(self, board, player):
+        loc = np.where(board[4] == player)[0][0], np.where(board[4] == player)[1][0]
+        valids = [0] * len(self.get_all_action_move())
+        b = Board(self.n_board, self.n_tower)
+        b.pieces = np.copy(board)
+        legalMoves, _ = b.get_legal_moves_builds(player)
+        to_check = []
+        for i in legalMoves:
+            to_check.append(f"[{loc[0]}, {loc[1]}]->[{i[0][0]}, {i[0][1]}]->[{i[1][0]}, {i[1][1]}]")
+        for j in to_check:
+            valids[self.all_move_build[j]] = 1
+        return np.array(valids)
