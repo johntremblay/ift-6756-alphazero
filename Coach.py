@@ -227,7 +227,7 @@ class Coach():
         else:
             with open(file, 'a') as fp:
                 fp.write(
-                    f"## Testing new NN vs random player (100 games):\nNew NN iteration number: {nb_model_improv}\nWinning rate versus random: {round(nnwins / 100, 2)}\nAvg number of moves: {avg_nb_moves}\n")
+                    f"## Testing new NN vs random player ({nb_game_rdm} games):\nNew NN iteration number: {nb_model_improv}\nWinning rate versus random: {round(nnwins / nb_game_rdm, 2)}\nAvg number of moves: {avg_nb_moves}\n")
                 fp.close()
                 df_stats.iloc[it, 5] = nb_model_improv
                 df_stats.iloc[it, 6] = round(nnwins / nb_game_rdm, 2)
