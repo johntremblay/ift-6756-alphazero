@@ -12,27 +12,27 @@ config_main = dotdict({
     'updateThreshold': 0.6,
     # During arena playoff, new neural net will be accepted if threshold or more of games are won.
     'maxlenOfQueue': 200000,  # Number of game examples to train the neural networks.
-    'numMCTSSims': 20,  # Number of games moves for MCTS to simulate.
+    'numMCTSSims': 15,  # Number of games moves for MCTS to simulate.
     'arenaCompare': 20,  # Number of games to play during arena play to determine if new net will be accepted.
     'cpuct': 1,
     'nb_of_new_model_for_random_player': 1,
     'nb_of_game_agaisnt_random_player': 50,
 
-    'checkpoint': './temp/',
+    'checkpoint': '/content/drive/MyDrive/AZ_apr5/',
     'load_model': False,
-    'load_folder_file': ('./temp/', 'best.pth.tar'),
+    'load_folder_file': ('/content/drive/MyDrive/AZ_apr5/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 
     'create_log_file': True,
-    'log_file_location': f'/home/john/PycharmProjects/ift-6756-alphazero/logs/',
+    'log_file_location': f'/content/drive/MyDrive/AZ_apr5/',
     'log_file_name': f'{os.path.basename(__file__)}_log.txt',
     'log_run_name': f'{os.path.basename(__file__)}'
 })
 config_nn = dotdict({
     'lr': 0.001,
-    'dropout': 0.2,
-    'epochs': 10,
-    'batch_size': 1024,
+    'dropout': 0.25,
+    'epochs': 15,
+    'batch_size': 2048,
     'cuda': torch.cuda.is_available(),
     'num_channels': 256,
 })
