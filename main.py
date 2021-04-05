@@ -11,8 +11,8 @@ coloredlogs.install(level='INFO')  # Change this to DEBUG to see more info.
 """
 Configuration minimal for now below
 """
-from configs.config_dummy_run import config_main as args
-from configs.config_dummy_run import config_nn as nn_args
+from configs.config_85pct_new_nn import config_main as args
+from configs.config_85pct_new_nn import config_nn as nn_args
 
 
 def main():
