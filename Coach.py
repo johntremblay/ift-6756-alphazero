@@ -128,7 +128,7 @@ class Coach():
             self.pnet.load_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
             pmcts = MCTS(self.game, self.pnet, self.args)
 
-            self.nnet.train(trainExamples)
+            losses = self.nnet.train(trainExamples)
             nmcts = MCTS(self.game, self.nnet, self.args)
 
             log.info('PITTING AGAINST PREVIOUS VERSION')
@@ -145,7 +145,8 @@ class Coach():
                 nwins=nwins,
                 df_stats=self.df_stats,
                 nb_model_improv=self.nb_model_improv,
-                avg_nb_moves=avg_moves)
+                avg_nb_moves=avg_moves,
+                train_losses=losses)
             self.df_stats.to_feather(os.path.join(self.args.log_file_location, f"{self.args.log_run_name}.feather"))
             log.info('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
             if pwins + nwins == 0 or float(nwins) / (pwins + nwins) < self.args.updateThreshold:
@@ -209,7 +210,8 @@ class Coach():
             self.skipFirstSelfPlay = True
 
     @staticmethod
-    def log_to_file(file, args, it, trainExamples, time_begin_iter, nwins, df_stats, nb_model_improv, avg_nb_moves, nb_game_rdm=100, nnwins=0, only_random=False):
+    def log_to_file(file, args, it, trainExamples, time_begin_iter, nwins, df_stats, nb_model_improv, avg_nb_moves,
+                    nb_game_rdm=100, nnwins=0, only_random=False, train_losses=None):
         if not only_random:
             with open(file, 'a') as fp:
                 fp.write(f"\n ### Iteration: {it}: \n")
@@ -217,6 +219,7 @@ class Coach():
                     f"Number of self-play games: {args.numEps}\nNumber of training examples: {len(trainExamples)}\nAvg seconds by game:{round((time.time() - time_begin_iter) / args.numEps, 0)}\n")
                 fp.write(
                     f"Arena games: {args.arenaCompare} \nPct of game won for new NN: {round(nwins / args.arenaCompare, 2)}\nAvg number of moves: {avg_nb_moves}\n")
+                fp.write(f"{train_losses if train_losses is not None else 0}")
                 fp.close()
             df_stats.iloc[it, 1] = len(trainExamples)
             df_stats.iloc[it, 2] = round((time.time() - time_begin_iter) / args.numEps, 0)
