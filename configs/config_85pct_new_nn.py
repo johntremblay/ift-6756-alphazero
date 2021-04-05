@@ -8,15 +8,15 @@ import os
 config_main = dotdict({
     'numIters': 25,
     'numEps': 100,  # Number of complete self-play games to simulate during a new iteration.
-    'tempThreshold': 5,  #
-    'updateThreshold': 0.5,
+    'tempThreshold': 15,  #
+    'updateThreshold': 0.6,
     # During arena playoff, new neural net will be accepted if threshold or more of games are won.
     'maxlenOfQueue': 200000,  # Number of game examples to train the neural networks.
     'numMCTSSims': 20,  # Number of games moves for MCTS to simulate.
-    'arenaCompare': 10,  # Number of games to play during arena play to determine if new net will be accepted.
+    'arenaCompare': 20,  # Number of games to play during arena play to determine if new net will be accepted.
     'cpuct': 1,
-    'nb_of_new_model_for_random_player': 5,
-    'nb_of_game_agaisnt_random_player': 100,
+    'nb_of_new_model_for_random_player': 1,
+    'nb_of_game_agaisnt_random_player': 50,
 
     'checkpoint': './temp/',
     'load_model': False,
@@ -30,9 +30,9 @@ config_main = dotdict({
 })
 config_nn = dotdict({
     'lr': 0.001,
-    'dropout': 0.1,
-    'epochs': 25,
-    'batch_size': 256,
+    'dropout': 0.2,
+    'epochs': 10,
+    'batch_size': 1024,
     'cuda': torch.cuda.is_available(),
-    'num_channels': 512,
+    'num_channels': 256,
 })
