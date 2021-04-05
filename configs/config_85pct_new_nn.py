@@ -18,13 +18,13 @@ config_main = dotdict({
     'nb_of_new_model_for_random_player': 1,
     'nb_of_game_agaisnt_random_player': 50,
 
-    'checkpoint': '/content/drive/MyDrive/AZ_Apr5/',
+    'checkpoint': './temp/',
     'load_model': False,
-    'load_folder_file': ('/content/drive/MyDrive/AZ_Apr5/', 'best.pth.tar'),
+    'load_folder_file': ('./temp/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 
     'create_log_file': True,
-    'log_file_location': f'/content/drive/MyDrive/AZ_Apr5/',
+    'log_file_location': f'./logs/',
     'log_file_name': f'{os.path.basename(__file__)}_log.txt',
     'log_run_name': f'{os.path.basename(__file__)}'
 })

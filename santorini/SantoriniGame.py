@@ -42,7 +42,7 @@ class SantoriniGame(Game):
         Function to get the action space dimension.
         :return: moves (8) x builds (8)
         """
-        return len(self.get_all_action_move())
+        return len(self.all_move_build)
 
     def getNextState(self, board, player, action):
         """
@@ -262,7 +262,7 @@ class SantoriniGame(Game):
 
     def getValidMoves(self, board, player):
         loc = np.where(board[4] == player)[0][0], np.where(board[4] == player)[1][0]
-        valids = [0] * len(self.get_all_action_move())
+        valids = [0] * len(self.all_move_build)
         b = Board(self.n_board, self.n_tower)
         b.pieces = np.copy(board)
         legalMoves, _ = b.get_legal_moves_builds(player)
