@@ -134,7 +134,7 @@ class Coach():
             log.info('PITTING AGAINST PREVIOUS VERSION')
             arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
                           lambda x: np.argmax(nmcts.getActionProb(x, temp=0)), self.game)
-            pwins, nwins, draws = arena.playGames(self.args.arenaCompare)
+            pwins, nwins, draws, avg_moves = arena.playGames(self.args.arenaCompare)
 
             self.df_stats = self.log_to_file(
                 file=self.log_file,
@@ -144,7 +144,8 @@ class Coach():
                 time_begin_iter=time_begin_iter,
                 nwins=nwins,
                 df_stats=self.df_stats,
-                nb_model_improv=self.nb_model_improv)
+                nb_model_improv=self.nb_model_improv,
+                avg_nb_moves=avg_moves)
             self.df_stats.to_feather(os.path.join(self.args.log_file_location, f"{self.args.log_run_name}.feather"))
             log.info('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
             if pwins + nwins == 0 or float(nwins) / (pwins + nwins) < self.args.updateThreshold:
@@ -163,7 +164,7 @@ class Coach():
                     mcts_simul = MCTS(game_simul, n_simul, self.args)
                     n1_simul = lambda x: np.argmax(mcts_simul.getActionProb(x, temp=0))
                     arena_simul = Arena(n1_simul, rp, game_simul, display=False)
-                    nnwins, _, _, avf_nb_moves = arena_simul.playGames(self.args.nb_of_game_agaisnt_random_player, verbose=False)
+                    nnwins, _, _, avg_nb_moves = arena_simul.playGames(self.args.nb_of_game_agaisnt_random_player, verbose=False)
                     self.df_stats = self.log_to_file(
                         file=self.log_file,
                         args=self.args,
@@ -175,7 +176,8 @@ class Coach():
                         nb_model_improv=self.nb_model_improv,
                         nb_game_rdm=self.args.nb_of_game_agaisnt_random_player,
                         nnwins=nnwins,
-                        only_random=True)
+                        only_random=True,
+                        avg_nb_moves=avg_nb_moves)
 
     def getCheckpointFile(self, iteration):
         return 'checkpoint_' + str(iteration) + '.pth.tar'
