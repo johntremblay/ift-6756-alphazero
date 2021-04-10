@@ -22,8 +22,11 @@ class SantoriniNNet(nn.Module):
         self.conv2 = nn.Conv3d(args.num_channels, args.num_channels, 3, stride=1, padding=1)
         self.conv3 = nn.Conv3d(args.num_channels, args.num_channels, 3, stride=1, padding=1)
         self.conv4 = nn.Conv3d(args.num_channels, args.num_channels, 3, stride=1, padding=1)
-        self.conv5 = nn.Conv3d(args.num_channels, args.num_channels, 3, stride=1)
-        self.conv6 = nn.Conv3d(args.num_channels, args.num_channels, 3, stride=1)
+        self.conv5 = nn.Conv3d(args.num_channels, args.num_channels, 3, stride=1, padding=1)
+        self.conv6 = nn.Conv3d(args.num_channels, args.num_channels, 3, stride=1, padding=1)
+        self.conv7 = nn.Conv3d(args.num_channels, args.num_channels, 3, stride=1, padding=1)
+        self.conv8 = nn.Conv3d(args.num_channels, args.num_channels, 3, stride=1)
+        self.conv9 = nn.Conv3d(args.num_channels, args.num_channels, 3, stride=1)
 
 
         self.bn1 = nn.BatchNorm3d(args.num_channels)
@@ -32,6 +35,9 @@ class SantoriniNNet(nn.Module):
         self.bn4 = nn.BatchNorm3d(args.num_channels)
         self.bn5 = nn.BatchNorm3d(args.num_channels)
         self.bn6 = nn.BatchNorm3d(args.num_channels)
+        self.bn7 = nn.BatchNorm3d(args.num_channels)
+        self.bn8 = nn.BatchNorm3d(args.num_channels)
+        self.bn9 = nn.BatchNorm3d(args.num_channels)
 
 
         self.fc1 = nn.Linear(args.num_channels*(self.board_x-4)*(self.board_y-4)*(self.board_z-4), 13*1024)
@@ -52,6 +58,9 @@ class SantoriniNNet(nn.Module):
         s = F.relu(self.bn4(self.conv4(s)))
         s = F.relu(self.bn5(self.conv5(s)))
         s = F.relu(self.bn6(self.conv6(s)))
+        s = F.relu(self.bn7(self.conv7(s)))
+        s = F.relu(self.bn8(self.conv8(s)))
+        s = F.relu(self.bn9(self.conv9(s)))
 
         s = s.view(-1, self.args.num_channels*(self.board_x-4)*(self.board_y-4)*(self.board_z-4))
 
