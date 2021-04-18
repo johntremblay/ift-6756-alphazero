@@ -4,7 +4,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
 class SantoriniNNet(nn.Module):
     def __init__(self, game, args):
         # game params
@@ -41,8 +40,11 @@ class SantoriniNNet(nn.Module):
 
     def forward(self, s):
         s = s.view(-1, 1, self.board_x, self.board_y, self.board_z)
+        res = s
         s = F.relu(self.bn1(self.conv1(s)))
+        s += res
         s = F.relu(self.bn2(self.conv2(s)))
+        s += res
         s = F.relu(self.bn3(self.conv3(s)))
         s = F.relu(self.bn4(self.conv4(s)))
         s = F.relu(self.bn5(self.conv5(s)))
