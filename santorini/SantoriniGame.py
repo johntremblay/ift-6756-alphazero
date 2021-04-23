@@ -29,6 +29,13 @@ class SantoriniGame(Game):
         """
         return ((self.n_tower+1), self.n_board, self.n_board)
 
+    def getBoardNNSize(self):
+        """
+        Function to get the dimension of the board.
+        :return: (mapping of the square content x dim of board x dim of board)
+        """
+        return (13, self.n_board, self.n_board)
+
     def getActionSize(self):
         """
         Function to get the action space dimension.
@@ -171,3 +178,40 @@ class SantoriniGame(Game):
             print("|")
 
         print("-----------------------------")
+
+    @staticmethod
+    def expanded_NN_form(board):
+        """
+        As of now we create that when having a rep of 5x5x5
+        """
+        nn_output = np.zeros((13, board.shape[0], board.shape[1]))
+        out = np.sum(board[0:4], axis=0)
+        for i in range(board.shape[0]):
+            for j in range(board.shape[1]):
+                if out[i, j] == 4:
+                    nn_output[12, i, j] = 1  # Level 12 represents cap
+                if out[i, j] == 3:
+                    nn_output[11, i, j] = 1  # Level 11 represents floor 3
+                if out[i, j] == 2:
+                    nn_output[10, i, j] = 1  # Level 10 represents floor 2
+                if out[i, j] == 1:
+                    nn_output[9, i, j] = 1  # Level 9 represents floor 1
+                if out[i, j] == 0:
+                    nn_output[8, i, j] = 1  # Level 8 represents floor 0
+                if nn_output[8, i, j] == 1 and board[4, i, j] == 1:
+                    nn_output[7, i, j] = 1  # Level 7 represents 1 and floor 0
+                if nn_output[8, i, j] == 1 and board[4, i, j] == -1:
+                    nn_output[6, i, j] = 1  # Level 6 represents -1 and floor 0
+                if nn_output[9, i, j] == 1 and board[4, i, j] == 1:
+                    nn_output[5, i, j] = 1  # Level 5 represents 1 and floor 1
+                if nn_output[9, i, j] == 1 and board[4, i, j] == -1:
+                    nn_output[4, i, j] = 1  # Level 4 represents -1 and floor 1
+                if nn_output[10, i, j] == 1 and board[4, i, j] == 1:
+                    nn_output[3, i, j] = 1  # Level 3 represents 1 and floor 2
+                if nn_output[10, i, j] == 1 and board[4, i, j] == -1:
+                    nn_output[2, i, j] = 1  # Level 2 represents -1 and floor 2
+                if nn_output[11, i, j] == 1 and board[4, i, j] == 1:
+                    nn_output[1, i, j] = 1  # Level 1 represents 1 and floor 3
+                if nn_output[11, i, j] == 1 and board[4, i, j] == -1:
+                    nn_output[0, i, j] = 1  # Level 0 represents -1 and floor 3
+        return nn_output

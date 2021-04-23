@@ -7,7 +7,7 @@ from utils import *
 from NeuralNet import NeuralNet
 import torch
 import torch.optim as optim
-from .SantoriniNNet import SantoriniNNet as onnet
+from .SantoriniNNet_simple import SantoriniNNet as onnet
 
 
 class NNetWrapper(NeuralNet):

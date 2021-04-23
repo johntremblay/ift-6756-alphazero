@@ -12,6 +12,7 @@ __pycache__/
 checkpoint/
 save/
 temp/
+logs/
 downloads/
 training/
 # Distribution / packaging

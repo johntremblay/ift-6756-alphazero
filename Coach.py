@@ -46,7 +46,8 @@ class Coach():
             'arena_games': rows_to_add,
             'pct_games_won': rows_to_add,
             'new_nn_iteration_nb': rows_to_add,
-            'winning_rate_vs_random': rows_to_add})
+            'winning_rate_vs_random': rows_to_add,
+            'avg_nb_of_moves': rows_to_add})
 
     def executeEpisode(self):
         """
@@ -77,7 +78,7 @@ class Coach():
             pi = self.mcts.getActionProb(canonicalBoard, temp=temp)
             sym = self.game.getSymmetries(canonicalBoard, pi)
             for b, p in sym:
-                trainExamples.append([b, self.curPlayer, p, None])
+                trainExamples.append([self.game.expanded_NN_form(b), self.curPlayer, p, None])
 
             action = np.random.choice(len(pi), p=pi)
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action)
@@ -127,13 +128,13 @@ class Coach():
             self.pnet.load_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
             pmcts = MCTS(self.game, self.pnet, self.args)
 
-            self.nnet.train(trainExamples)
+            losses = self.nnet.train(trainExamples)
             nmcts = MCTS(self.game, self.nnet, self.args)
 
             log.info('PITTING AGAINST PREVIOUS VERSION')
             arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
                           lambda x: np.argmax(nmcts.getActionProb(x, temp=0)), self.game)
-            pwins, nwins, draws = arena.playGames(self.args.arenaCompare)
+            pwins, nwins, draws, avg_moves = arena.playGames(self.args.arenaCompare)
 
             self.df_stats = self.log_to_file(
                 file=self.log_file,
@@ -143,7 +144,9 @@ class Coach():
                 time_begin_iter=time_begin_iter,
                 nwins=nwins,
                 df_stats=self.df_stats,
-                nb_model_improv=self.nb_model_improv)
+                nb_model_improv=self.nb_model_improv,
+                avg_nb_moves=avg_moves,
+                train_losses=losses)
 
             self.df_stats.to_feather(os.path.join(self.args.log_file_location, f"{self.args.log_run_name}.feather"))
             log.info('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
@@ -159,11 +162,11 @@ class Coach():
                     game_simul = SantoriniGame(5, 4)
                     rp = RandomPlayer(game_simul).play
                     n_simul = NNet(game_simul, self.nn_args)
-                    n_simul.load_checkpoint('./temp/', 'best.pth.tar')
+                    n_simul.load_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')
                     mcts_simul = MCTS(game_simul, n_simul, self.args)
                     n1_simul = lambda x: np.argmax(mcts_simul.getActionProb(x, temp=0))
                     arena_simul = Arena(n1_simul, rp, game_simul, display=False)
-                    nnwins, _, _ = arena_simul.playGames(self.args.nb_of_game_agaisnt_random_player, verbose=False)
+                    nnwins, _, _, avg_nb_moves = arena_simul.playGames(self.args.nb_of_game_agaisnt_random_player, verbose=False)
                     self.df_stats = self.log_to_file(
                         file=self.log_file,
                         args=self.args,
@@ -175,8 +178,8 @@ class Coach():
                         nb_model_improv=self.nb_model_improv,
                         nb_game_rdm=self.args.nb_of_game_agaisnt_random_player,
                         nnwins=nnwins,
-                        only_random=True)
-
+                        only_random=True,
+                        avg_nb_moves=avg_nb_moves)
 
     def getCheckpointFile(self, iteration):
         return 'checkpoint_' + str(iteration) + '.pth.tar'
@@ -208,25 +211,29 @@ class Coach():
             self.skipFirstSelfPlay = True
 
     @staticmethod
-    def log_to_file(file, args, it, trainExamples, time_begin_iter, nwins, df_stats, nb_model_improv, nb_game_rdm=100, nnwins=0, only_random=False):
+    def log_to_file(file, args, it, trainExamples, time_begin_iter, nwins, df_stats, nb_model_improv, avg_nb_moves,
+                    nb_game_rdm=100, nnwins=0, only_random=False, train_losses=None):
         if not only_random:
             with open(file, 'a') as fp:
                 fp.write(f"\n ### Iteration: {it}: \n")
                 fp.write(
                     f"Number of self-play games: {args.numEps}\nNumber of training examples: {len(trainExamples)}\nAvg seconds by game:{round((time.time() - time_begin_iter) / args.numEps, 0)}\n")
                 fp.write(
-                    f"Arena games: {args.arenaCompare} \nPct of game won for new NN: {round(nwins / args.arenaCompare, 2)}\n")
+                    f"Arena games: {args.arenaCompare} \nPct of game won for new NN: {round(nwins / args.arenaCompare, 2)}\nAvg number of moves: {avg_nb_moves}\n")
+                fp.write(f"{train_losses if train_losses is not None else 0}")
                 fp.close()
             df_stats.iloc[it, 1] = len(trainExamples)
             df_stats.iloc[it, 2] = round((time.time() - time_begin_iter) / args.numEps, 0)
             df_stats.iloc[it, 3] = args.arenaCompare
             df_stats.iloc[it, 4] = round(nwins / args.arenaCompare, 2)
+            df_stats.iloc[it, 7] = avg_nb_moves
             return df_stats
         else:
             with open(file, 'a') as fp:
                 fp.write(
-                    f"## Testing new NN vs random player (100 games):\nNew NN iteration number: {nb_model_improv}\nWinning rate versus random: {round(nnwins / 100, 2)}\n")
+                    f"## Testing new NN vs random player ({nb_game_rdm} games):\nNew NN iteration number: {nb_model_improv}\nWinning rate versus random: {round(nnwins / nb_game_rdm, 2)}\nAvg number of moves: {avg_nb_moves}\n")
                 fp.close()
                 df_stats.iloc[it, 5] = nb_model_improv
                 df_stats.iloc[it, 6] = round(nnwins / nb_game_rdm, 2)
+                df_stats.iloc[it, 7] = avg_nb_moves
                 return df_stats

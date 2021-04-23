@@ -26,6 +26,7 @@ class Arena():
         self.player2 = player2
         self.game = game
         self.display = display
+        self.number_of_moves = 0
 
     def playGame(self, verbose=False):
         """
@@ -61,6 +62,7 @@ class Arena():
             assert self.display
             print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(board, 1)))
             self.display(board)
+        self.number_of_moves += it
         return curPlayer * self.game.getGameEnded(board, curPlayer)
 
     def playGames(self, num, verbose=False):
@@ -98,4 +100,6 @@ class Arena():
             else:
                 draws += 1
 
-        return oneWon, twoWon, draws
+        self.number_of_moves = self.number_of_moves / (num * 2)
+
+        return oneWon, twoWon, draws, self.number_of_moves
